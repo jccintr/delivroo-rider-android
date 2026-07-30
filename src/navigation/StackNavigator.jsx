@@ -4,7 +4,8 @@ import Login from '../screens/Login';
 import Register from '../screens/Register';
 import Home from '../screens/Home';
 import { StatusBar } from 'react-native';
-import {colors} from '../theme/colors'
+import {colors} from '../theme/theme'
+
 
 
 const Stack = createNativeStackNavigator();
