@@ -8,6 +8,8 @@ const getToken = async () => {
 export const api = async (endpoint, options = {}) => {
   const token = await getToken();
 
+
+
   const headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json',

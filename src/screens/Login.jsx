@@ -10,10 +10,10 @@ const { login, requestLoading, error } = useAuth();
     console.log('handleLogin');
     try {
      const resp =  await login("paulinho@gmail.com", '123456');
-     console.log(data);
+     console.log('Resposta do login:', resp);
       // navegação automática (se usar navegação baseada em isAuthenticated)
     } catch (err) {
-      // error já está disponível
+      console.log(err)
     }
   };
 
@@ -21,7 +21,8 @@ const { login, requestLoading, error } = useAuth();
   return (
      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Text>Login</Text>
-          <Button title='Fazer Loginnnnn' onPress={handleLogin} style={{marginBottom: 30}}/>
+          <Button title='Fazer Loginnnnn' onPress={handleLogin} />
+          <View style={{marginBottom: 30}}/>
           <Button title='Cadastrar' onPress={() => navigation.navigate('register')}/>
         </View>
   )

@@ -17,7 +17,7 @@ export const authService = {
 
   validateToken: () => {
     return api('riders/me', {
-      method: 'POST',
+      method: 'GET',
     });
   },
 /*
