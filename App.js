@@ -4,6 +4,7 @@ import { useFonts as useBaloo2, Baloo2_500Medium, Baloo2_700Bold, Baloo2_800Extr
 import { useFonts as useInter, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { useFonts as useMono, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import {View} from 'react-native';
+import {AuthProvider} from './src/contexts/AuthContext';
 
 export default function App() {
   const [baloo2Loaded] = useBaloo2({
@@ -32,8 +33,10 @@ export default function App() {
 }
 
   return (
+    <AuthProvider>
     <NavigationContainer>
       <StackNavigator />
     </NavigationContainer>
+    </AuthProvider>
   );
 }
