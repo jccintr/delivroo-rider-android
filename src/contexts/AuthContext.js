@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   // Verifica se já existe token ao abrir o app
+
   useEffect(() => {
     async function loadStorageData() {
       try {
@@ -18,7 +19,7 @@ export function AuthProvider({ children }) {
 
         if (token) {
           const data = await authService.validateToken();
-          setUser(data.user);
+          setUser(data);
         }
       } catch (err) {
         // Token inválido → limpa
@@ -50,15 +51,16 @@ export function AuthProvider({ children }) {
     return handleRequest(async () => {
       const data = await authService.login(email, password);
       await AsyncStorage.setItem('@token', data.token);
-      setUser(data.user);
+      setUser(data);
       return data;
     });
   }, [handleRequest]);
 
-  const register = useCallback(async (formData) => {
-    return handleRequest(() => authService.register(formData));
+  const register = useCallback(async (name, email, phone, password, vehicleType) => {
+    return handleRequest(() => authService.register(name, email, phone, password, vehicleType));
   }, [handleRequest]);
 
+  /*
   const verifyEmail = useCallback(async (code) => {
     return handleRequest(async () => {
       const data = await authService.verifyEmail(code);
@@ -79,7 +81,7 @@ export function AuthProvider({ children }) {
   const resetPassword = useCallback(async (email, code, password) => {
     return handleRequest(() => authService.resetPassword(email, code, password));
   }, [handleRequest]);
-
+*/
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem('@token');
     setUser(null);
@@ -95,11 +97,12 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         login,
         register,
-        verifyEmail,
-        requestVerificationEmail,
-        requestPasswordEmail,
-        resetPassword,
         logout,
+       // verifyEmail,
+       // requestVerificationEmail,
+       // requestPasswordEmail,
+      //  resetPassword,
+        
       }}
     >
       {children}

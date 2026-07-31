@@ -8,42 +8,38 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar
-} from 'react-native';
+  StatusBar,
+  ActivityIndicator} from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
-
-
-import {useAuth} from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
+import AlertModal from '../components/modals/AlertModal';
+import useAlertModal from '../hooks/useAlertModal';
 
 
 const Login = ({navigation}) => {
-    const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const {login, requestLoading, error } = useAuth();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const alert = useAlertModal();
  
-  function handleLogin() {
-    // TODO: integrar com a API de autenticação
-     navigation.navigate('accountActivation')
-    console.log('Login:', { email, password });
-  }
 
-
-const { login, requestLoading, error } = useAuth();
-const [isLoading, setIsLoading] = React.useState(false);
-
-  const handleLogin2 = async () => {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert.show({type: 'error',title: 'Campos obrigatórios', message: 'Preencha o e-mail e a senha para continuar.',});
+      return;
+    }
     setIsLoading(true);
-   console.log('Login Request');
+    console.log('Login Request');
     try {
-     const response =  await login("paulinho@gmail.com", '1234');
-    // alert('Login efetuado com sucesso');
+     const response =  await login(email,password);
      const data = await response.json();
-     console.log(data);
-      // navegação automática (se usar navegação baseada em isAuthenticated)
+     navigation.navigate('home');
     } catch (err) {
-     //  alert('Erro ao efetuar login');
-      console.log(err);
+       console.log(err.data.error);
+       alert.show({type: 'error',title: 'Acesso não autorizado', message: err.data.error,});
     } finally {
       setIsLoading(false);
     }
@@ -123,8 +119,8 @@ const [isLoading, setIsLoading] = React.useState(false);
           <Text style={styles.forgot}>Esqueci minha senha</Text>
         </TouchableOpacity>
  
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
+        <TouchableOpacity style={styles.button} disabled={isLoading} onPress={handleLogin}>
+          {!isLoading?<Text style={styles.buttonText}>Entrar</Text>:<ActivityIndicator  size="large" color={colors.white}/>}
         </TouchableOpacity>
  
         <View style={styles.signupRow}>
@@ -134,6 +130,7 @@ const [isLoading, setIsLoading] = React.useState(false);
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <AlertModal {...alert.props} />
     </KeyboardAvoidingView>
   );
 }

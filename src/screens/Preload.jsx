@@ -1,7 +1,20 @@
 import { Button, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext'
 
 const Preload = ({navigation}) => {
+  const { isAuthenticated } = useAuth();
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.reset({routes:[{name:'home'}]});
+    } else {
+      navigation.navigate('login');
+    }
+  }, [isAuthenticated]);
+
+
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <Text>Preload</Text>

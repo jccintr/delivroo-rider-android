@@ -8,10 +8,10 @@ export const authService = {
     });
   },
 
-  register: (data) => {
+  register: (name, email, phone, password, vehicleType) => {
     return api('/riders/register', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ name, email, phone, password, vehicleType }),
     });
   },
 

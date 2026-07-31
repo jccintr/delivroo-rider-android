@@ -8,15 +8,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar
+  StatusBar,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
+import { useAuth } from '../contexts/AuthContext'
+import AlertModal from '../components/modals/AlertModal';
+import useAlertModal from '../hooks/useAlertModal';
+
  
 const VEHICLES = [
-  { key: 'moto', label: 'Moto', icon: 'motorbike' },
-  { key: 'carro', label: 'Carro', icon: 'car' },
-  { key: 'bicicleta', label: 'Bicicleta', icon: 'bike' },
+  { key: 'Moto', label: 'Moto', icon: 'motorbike' },
+  { key: 'Carro', label: 'Carro', icon: 'car' },
+  { key: 'Bicicleta', label: 'Bicicleta', icon: 'bike' },
 ];
 
 
@@ -26,11 +31,39 @@ const Register = ({navigation}) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [vehicle, setVehicle] = useState(null);
+  const [vehicleType, setVehicleType] = useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { register } = useAuth();
+  const alert = useAlertModal();
  
-  function handleRegister() {
-    // TODO: integrar com a API de cadastro
-    console.log('Cadastro:', { name, email, phone, password, vehicle });
+
+  const handleRegister = async() => {
+    if (!name || !email || !phone || !password) {
+      alert.show({type: 'error',title: 'Campos obrigatórios', message: 'Preencha todos os campos para continuar.',});
+      return;
+    }
+    if (!vehicleType) {
+      alert.show({type: 'error',title: 'Vehículo', message: 'Selecione o tipo de seu veículo para continuar.',});
+      return;
+    }
+    setIsLoading(true);
+    console.log('Register Request');
+    console.log('Cadastro:', { name, email, phone, password, vehicleType });
+    try {
+       const response = await register(name, email, phone, password, vehicleType);
+       alert.show({
+          type: 'success',
+          title: 'Cadastro efetuado',
+          message: 'Faça login para começar a usar o aplicativo.',
+          onClose: () => {
+            navigation.navigate('login');
+          },
+        });
+    } catch (err) {
+      alert.show({type: 'error',title: 'Falha ao cadastrar', message: err.data.error,});
+   } finally {
+      setIsLoading(false);
+    }
   }
  
   return (
@@ -128,12 +161,12 @@ const Register = ({navigation}) => {
         <Text style={styles.label}>Veículo</Text>
         <View style={styles.vehicleRow}>
           {VEHICLES.map((v) => {
-            const selected = vehicle === v.key;
+            const selected = vehicleType === v.key;
             return (
               <TouchableOpacity
                 key={v.key}
                 style={[styles.vehicleOption, selected && styles.vehicleOptionSelected]}
-                onPress={() => setVehicle(v.key)}
+                onPress={() => setVehicleType(v.key)}
               >
                 <MaterialCommunityIcons
                   name={v.icon}
@@ -154,7 +187,7 @@ const Register = ({navigation}) => {
         </View>
  
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Criar conta</Text>
+          {!isLoading?<Text style={styles.buttonText}>Criar conta</Text>:<ActivityIndicator  size="large" color={colors.white}/>}
         </TouchableOpacity>
  
         <View style={styles.loginRow}>
@@ -164,6 +197,7 @@ const Register = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <AlertModal {...alert.props} />
     </KeyboardAvoidingView>
   );
 

@@ -69,6 +69,7 @@ export const api = async (endpoint, options = {}, retries = 2) => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Connection': 'close',
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options.headers,
         },
