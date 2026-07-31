@@ -117,7 +117,7 @@ const [isLoading, setIsLoading] = React.useState(false);
         </View>
  
         <TouchableOpacity
-          onPress={() => navigation.navigate('RecuperarSenha')}
+          onPress={() => navigation.navigate('passwordRecovery')}
           style={styles.forgotWrap}
         >
           <Text style={styles.forgot}>Esqueci minha senha</Text>
