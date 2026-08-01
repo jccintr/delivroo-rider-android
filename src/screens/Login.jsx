@@ -36,6 +36,7 @@ const Login = ({navigation}) => {
     try {
      const response =  await login(email,password);
      const data = await response.json();
+     console.log('Login Response:', data);
      navigation.navigate('home');
     } catch (err) {
        console.log(err.data.error);
