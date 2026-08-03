@@ -38,10 +38,13 @@ const Login = ({navigation}) => {
 
   setIsLoading(true);
   try {
-    await login(email, password);
+    const data = await login(email, password);
+
+    const route = data?.emailVerifiedAt ? 'home' : 'accountActivation';
+
     navigation.reset({
       index: 0,
-      routes: [{ name: 'home' }],
+      routes: [{ name: route }],
     });
   } catch (err) {
     alert.show({

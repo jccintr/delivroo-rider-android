@@ -4,15 +4,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing } from '../theme/theme';
 
 const Preload = ({ navigation }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   useEffect(() => {
-    if (loading) return; // ainda verificando o token
+    if (loading) return;
 
     if (isAuthenticated) {
+      const route = user?.emailVerifiedAt ? 'home' : 'accountActivation';
       navigation.reset({
         index: 0,
-        routes: [{ name: 'home' }],
+        routes: [{ name: route }],
       });
     } else {
       navigation.reset({
@@ -20,7 +21,7 @@ const Preload = ({ navigation }) => {
         routes: [{ name: 'login' }],
       });
     }
-  }, [isAuthenticated, loading, navigation]);
+  }, [isAuthenticated, loading, user, navigation]);
 
   return (
     <View style={styles.container}>

@@ -8,18 +8,23 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
+import { useAuth } from '../contexts/AuthContext';
+import useAlertModal from '../hooks/useAlertModal';
 
 const CODE_LENGTH = 4;
 
-export default function AccountActivation({ navigation, route }) {
-  const phone = route?.params?.phone ?? '(35) 9****-1234';
-
+const AccountActivation = ({ navigation, route }) => {
+  //const phone = route?.params?.phone ?? '(35) 9****-1234';
+  const {  user, verifyEmail } = useAuth();
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''));
   const inputsRef = useRef([]);
-
+  const alert = useAlertModal();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const email = user?.email ?? '';
   function handleChangeDigit(value, index) {
     // aceita apenas 1 dígito numérico por caixa
     const digit = value.replace(/[^0-9]/g, '').slice(-1);
@@ -39,10 +44,29 @@ export default function AccountActivation({ navigation, route }) {
     }
   }
 
-  function handleActivate() {
+  const handleActivate = async () => {
+
     const fullCode = code.join('');
     // TODO: integrar com a API de ativação de conta
     console.log('Ativando conta com código:', fullCode);
+    setIsLoading(true);
+    try {
+      const data = await verifyEmail(fullCode);
+      if (data?.user?.emailVerifiedAt) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'home' }],
+        });
+      }
+    } catch(err){
+      alert.show({
+      type: 'error',
+      title: 'Código inválido',
+      message: err?.data?.error || err?.message || 'Erro ao fazer validar conta.',
+    });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleResend() {
@@ -65,7 +89,7 @@ export default function AccountActivation({ navigation, route }) {
         <Text style={styles.title}>Confirme sua conta</Text>
         <Text style={styles.subtitle}>
           Enviamos um código de {CODE_LENGTH} dígitos para{'\n'}
-          <Text style={styles.phone}>{phone}</Text>
+          <Text style={styles.phone}>{email}</Text>
         </Text>
 
         <View style={styles.codeRow}>
@@ -89,7 +113,7 @@ export default function AccountActivation({ navigation, route }) {
           onPress={handleActivate}
           disabled={!isComplete}
         >
-          <Text style={styles.buttonText}>Ativar conta</Text>
+          {isLoading ?  <ActivityIndicator  size="large" color={colors.white}/> : <Text style={styles.buttonText}>Ativar conta</Text>}
         </TouchableOpacity>
 
         <View style={styles.resendRow}>
@@ -107,6 +131,8 @@ export default function AccountActivation({ navigation, route }) {
     </KeyboardAvoidingView>
   );
 }
+
+export default AccountActivation;
 
 const styles = StyleSheet.create({
   container: {
