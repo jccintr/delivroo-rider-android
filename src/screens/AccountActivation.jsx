@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext';
+import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 
 const CODE_LENGTH = 4;
@@ -52,12 +53,16 @@ const AccountActivation = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       const data = await verifyEmail(fullCode);
-      if (data?.user?.emailVerifiedAt) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'home' }],
+      alert.show({
+          type: 'success',
+          title: 'Email Verificado',
+          message: 'Agora a sua conta esta ativa.',
+          onClose: () => {
+            navigation.reset({ index: 0, routes: [{ name: 'home' }],});
+          },
         });
-      }
+        
+  
     } catch(err){
       alert.show({
       type: 'error',
@@ -128,6 +133,7 @@ const AccountActivation = ({ navigation, route }) => {
             </TouchableOpacity>
          </View>
       </View>
+      <AlertModal {...alert.props} />
     </KeyboardAvoidingView>
   );
 }
