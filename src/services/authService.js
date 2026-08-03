@@ -20,14 +20,14 @@ export const authService = {
       method: 'GET',
     });
   },
-/*
+
   verifyEmail: (code) => {
-    return api('/passengers/auth/verifyemail', {
+    return api('/riders/verify-account', {
       method: 'POST',
       body: JSON.stringify({ code }),
     });
   },
-
+/*
   requestVerificationEmail: () => {
     return api('/passengers/auth/email/verify/request', {
       method: 'POST',

@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
     return handleRequest(() => authService.register(name, email, phone, password, vehicleType));
   }, [handleRequest]);
 
-  /*
+  
   const verifyEmail = useCallback(async (code) => {
     return handleRequest(async () => {
       const data = await authService.verifyEmail(code);
@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
       return data;
     });
   }, [handleRequest]);
-
+/*
   const requestVerificationEmail = useCallback(async () => {
     return handleRequest(() => authService.requestVerificationEmail());
   }, [handleRequest]);
@@ -98,7 +98,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
-       // verifyEmail,
+        verifyEmail,
        // requestVerificationEmail,
        // requestPasswordEmail,
       //  resetPassword,

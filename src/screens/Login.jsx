@@ -26,25 +26,33 @@ const Login = ({navigation}) => {
   const alert = useAlertModal();
  
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert.show({type: 'error',title: 'Campos obrigatórios', message: 'Preencha o e-mail e a senha para continuar.',});
-      return;
-    }
-    setIsLoading(true);
-    console.log('Login Request');
-    try {
-     const response =  await login(email,password);
-     const data = await response.json();
-     console.log('Login Response:', data);
-     navigation.navigate('home');
-    } catch (err) {
-       console.log(err.data.error);
-       alert.show({type: 'error',title: 'Acesso não autorizado', message: err.data.error,});
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ const handleLogin = async () => {
+  if (!email || !password) {
+    alert.show({
+      type: 'error',
+      title: 'Campos obrigatórios',
+      message: 'Preencha o e-mail e a senha para continuar.',
+    });
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    await login(email, password);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'home' }],
+    });
+  } catch (err) {
+    alert.show({
+      type: 'error',
+      title: 'Acesso não autorizado',
+      message: err?.data?.error || err?.message || 'Erro ao fazer login',
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   
 

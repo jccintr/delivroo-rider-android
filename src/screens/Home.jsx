@@ -43,15 +43,16 @@ const Home = ({navigation}) => {
 
 
   const handleLogout = async () => {
-    console.log('HandleLogout');
-    try {
-
-      await logout();
-      navigation.navigate('login');
-    } catch (err) {
-      console.log(err);
-    }
-}
+  try {
+    await logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'login' }],
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 
 return (
