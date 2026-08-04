@@ -27,13 +27,13 @@ export const authService = {
       body: JSON.stringify({ code }),
     });
   },
-/*
-  requestVerificationEmail: () => {
-    return api('/passengers/auth/email/verify/request', {
+
+  resendVerificationEmailCode: () => {
+     return api('/riders/verify-account/resend', {
       method: 'POST',
     });
   },
-
+/*
   requestPasswordEmail: (email) => {
     return api('/passengers/auth/password/request', {
       method: 'POST',

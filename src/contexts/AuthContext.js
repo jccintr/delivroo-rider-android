@@ -69,11 +69,11 @@ export function AuthProvider({ children }) {
       return data;
     });
   }, [handleRequest]);
-/*
-  const requestVerificationEmail = useCallback(async () => {
-    return handleRequest(() => authService.requestVerificationEmail());
-  }, [handleRequest]);
 
+  const resendVerificationEmailCode = useCallback(async () => {
+    return handleRequest(() => authService.resendVerificationEmailCode());
+  }, [handleRequest]);
+/*
   const requestPasswordEmail = useCallback(async (email) => {
     return handleRequest(() => authService.requestPasswordEmail(email));
   }, [handleRequest]);
@@ -99,7 +99,8 @@ export function AuthProvider({ children }) {
         register,
         logout,
         verifyEmail,
-       // requestVerificationEmail,
+        resendVerificationEmailCode
+      
        // requestPasswordEmail,
       //  resetPassword,
         

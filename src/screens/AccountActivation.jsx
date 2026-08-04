@@ -20,7 +20,7 @@ const CODE_LENGTH = 4;
 
 const AccountActivation = ({ navigation, route }) => {
   //const phone = route?.params?.phone ?? '(35) 9****-1234';
-  const {  user, verifyEmail } = useAuth();
+  const {  user, verifyEmail, resendVerificationEmailCode, logout } = useAuth();
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''));
   const inputsRef = useRef([]);
   const alert = useAlertModal();
@@ -76,8 +76,35 @@ const AccountActivation = ({ navigation, route }) => {
 
   function handleResend() {
     // TODO: integrar com a API de reenvio de código
-    console.log('Reenviando código para', phone);
+    console.log('Reenviando código para', email);
+    try {
+      resendVerificationEmailCode();
+      alert.show({
+        type: 'success',
+        title: 'Código reenviado',
+        message: `Um novo código foi enviado para ${email}.`,
+      });
+    } catch(err){
+      alert.show({
+        type: 'error',
+        title: 'Erro ao reenviar código',
+        message: err?.data?.error || err?.message || 'Erro ao reenviar código.',
+      });
+    }
   }
+
+  const handleLogout = async () => {
+  try {
+    await logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'login' }],
+    });
+  } catch (err) {
+    console.log(err);
+    
+  }
+};
 
   const isComplete = code.every((d) => d !== '');
 
@@ -128,7 +155,7 @@ const AccountActivation = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
          <View style={styles.resendRow}>
-            <TouchableOpacity onPress={() => navigation.navigate('login')}>
+            <TouchableOpacity onPress={handleLogout}>
                <Text style={styles.resendLink}>Utilizar outra conta</Text>
             </TouchableOpacity>
          </View>
