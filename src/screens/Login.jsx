@@ -125,7 +125,7 @@ const Login = ({navigation}) => {
         </View>
  
         <TouchableOpacity
-          onPress={() => navigation.navigate('passwordRecovery')}
+          onPress={() => navigation.navigate('requestPasswordCode')}
           style={styles.forgotWrap}
         >
           <Text style={styles.forgot}>Esqueci minha senha</Text>

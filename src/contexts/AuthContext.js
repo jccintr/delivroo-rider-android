@@ -73,15 +73,19 @@ export function AuthProvider({ children }) {
   const resendVerificationEmailCode = useCallback(async () => {
     return handleRequest(() => authService.resendVerificationEmailCode());
   }, [handleRequest]);
-/*
-  const requestPasswordEmail = useCallback(async (email) => {
-    return handleRequest(() => authService.requestPasswordEmail(email));
+
+  const requestPasswordCode = useCallback(async (email) => {
+    return handleRequest(() => authService.requestPasswordCode(email));
+  }, [handleRequest]);
+
+  const verifyPasswordCode = useCallback(async (email, code) => {
+    return handleRequest(() => authService.verifyPasswordCode(email, code));
   }, [handleRequest]);
 
   const resetPassword = useCallback(async (email, code, password) => {
     return handleRequest(() => authService.resetPassword(email, code, password));
   }, [handleRequest]);
-*/
+
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem('@token');
     setUser(null);
@@ -99,10 +103,10 @@ export function AuthProvider({ children }) {
         register,
         logout,
         verifyEmail,
-        resendVerificationEmailCode
-      
-       // requestPasswordEmail,
-      //  resetPassword,
+        resendVerificationEmailCode,
+        requestPasswordCode,
+        verifyPasswordCode,
+        resetPassword,
         
       }}
     >

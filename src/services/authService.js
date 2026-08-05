@@ -33,19 +33,25 @@ export const authService = {
       method: 'POST',
     });
   },
-/*
-  requestPasswordEmail: (email) => {
-    return api('/passengers/auth/password/request', {
+
+  requestPasswordCode: (email) => {
+    return api('/riders/password/request', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   },
 
-  resetPassword: (email, code, password) => {
-    return api('/passengers/auth/password/reset', {
+   verifyPasswordCode: (email,code) => {
+    return api('/riders/password/verify-code', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  },
+  resetPassword: (email,code,password) => {
+    return api('/riders/password/reset', {
       method: 'POST',
       body: JSON.stringify({ email, code, password }),
     });
   },
-  */
+
 };

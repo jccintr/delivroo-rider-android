@@ -4,9 +4,10 @@ import Login from '../screens/Login';
 import Register from '../screens/Register';
 import Home from '../screens/Home';
 import AccountActivation from '../screens/AccountActivation';
-import PasswordRecovery from '../screens/PasswordRecovery';
-import PasswordRecoveryCode from '../screens/PasswordRecoveryCode';
+
+import VerifyPasswordCode from '../screens/VerifyPasswordCode';
 import ResetPassword from '../screens/ResetPassword';
+import RequestPasswordCode from '../screens/RequestPasswordCode';
 import { StatusBar } from 'react-native';
 import {colors} from '../theme/theme'
 
@@ -25,12 +26,15 @@ const StackNavigator = () => {
     <Stack.Navigator initialRouteName='preload'>
 
         <Stack.Screen name='preload' component={Preload} options={{headerShown:false}}/>
+        
         <Stack.Screen name='login' component={Login} options={{headerShown:false}}/>
         <Stack.Screen name='register' component={Register} options={{headerShown:false}}/>
         <Stack.Screen name='accountActivation' component={AccountActivation} options={{headerShown:false}}/>
-        <Stack.Screen name='passwordRecovery' component={PasswordRecovery} options={{headerShown:false}}/>
-        <Stack.Screen name='passwordRecoveryCode' component={PasswordRecoveryCode} options={{headerShown:false}}/>
+
+        <Stack.Screen name='requestPasswordCode' component={RequestPasswordCode} options={{headerShown:false}}/>
+        <Stack.Screen name='verifyPasswordCode' component={VerifyPasswordCode} options={{headerShown:false}}/>
         <Stack.Screen name='resetPassword' component={ResetPassword} options={{headerShown:false}}/>
+
         <Stack.Screen name='home' component={Home} options={{headerShown:false}}/>
       
 

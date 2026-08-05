@@ -1,4 +1,3 @@
-// ResetPassword.js
 import React, { useState } from 'react';
 import {
   View,
@@ -9,32 +8,53 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
+import { useAuth } from '../contexts/AuthContext'
+import AlertModal from '../components/modals/AlertModal';
+import useAlertModal from '../hooks/useAlertModal';
 
 const MIN_LENGTH = 6;
 
 export default function ResetPassword({ navigation, route }) {
   const { email, code } = route?.params ?? {};
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const alert = useAlertModal();
+  const {resetPassword, error } = useAuth();
 
   const isTooShort = password.length > 0 && password.length < MIN_LENGTH;
-  const doesNotMatch =
-    confirmPassword.length > 0 && confirmPassword !== password;
-  const isValid =
-    password.length >= MIN_LENGTH && confirmPassword === password;
+  const doesNotMatch =  confirmPassword.length > 0 && confirmPassword !== password;
+  const isValid =  password.length >= MIN_LENGTH && confirmPassword === password;
 
-  function handleReset() {
-    if (!isValid) return;
-    // TODO: integrar com a API — enviar email/code (validados na etapa anterior) + nova senha
-    console.log('Redefinindo senha:', { email, code, password });
+  const handleReset = async () => {
+    setIsLoading(true);
+    try {
+       console.log('Redefinindo senha para:', email, 'com código:', code);
+       const data = await resetPassword(email, code, password);
+       alert.show({
+            type: 'success',
+            title: 'Senha redefinida',
+            message: 'Sua senha foi redefinida com sucesso. Agora você pode fazer login com sua nova senha.',
+            onClose: () => {
+                navigation.reset({index: 0,routes: [{ name: 'login' }], });
+            },
+       });
+    } catch (err) {
+      alert.show({
+        type: 'error',
+        title: 'Falha ao redefinir senha',
+        message: err?.data?.error || err?.message || 'Erro ao redefinir senha',
+      });
+    } finally {
+      setIsLoading(false);
+    }
 
-    navigation.navigate('Login');
   }
 
   return (
@@ -123,9 +143,14 @@ export default function ResetPassword({ navigation, route }) {
           onPress={handleReset}
           disabled={!isValid}
         >
-          <Text style={styles.buttonText}>Redefinir senha</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color={colors.white} />
+          ) : (
+            <Text style={styles.buttonText}>Redefinir senha</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
+       <AlertModal {...alert.props} />
     </KeyboardAvoidingView>
   );
 }
