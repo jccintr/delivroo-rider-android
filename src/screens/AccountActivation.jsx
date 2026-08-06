@@ -58,7 +58,7 @@ const AccountActivation = ({ navigation, route }) => {
           title: 'Email Verificado',
           message: 'Agora a sua conta esta ativa.',
           onClose: () => {
-            navigation.reset({ index: 0, routes: [{ name: 'home' }],});
+            navigation.reset({ index: 0, routes: [{ name: 'homeDrawer' }],});
           },
         });
         

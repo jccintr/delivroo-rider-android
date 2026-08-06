@@ -1,10 +1,10 @@
 
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {colors, fonts, fontSizes, radius, spacing} from '../theme/theme';
-import DeliveryCard from '../components/cards/DeliveryCard';
+import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
+import DeliveryCard from '../../components/cards/DeliveryCard';
 
 // mock das entregas - remover depois
 const AVAILABLE_DELIVERIES = [

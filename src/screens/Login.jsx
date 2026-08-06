@@ -40,7 +40,7 @@ const Login = ({navigation}) => {
   try {
     const data = await login(email, password);
 
-    const route = data?.emailVerifiedAt ? 'home' : 'accountActivation';
+    const route = data?.emailVerifiedAt ? 'homeDrawer' : 'accountActivation';
 
     navigation.reset({
       index: 0,

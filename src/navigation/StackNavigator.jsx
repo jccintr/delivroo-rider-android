@@ -1,8 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import DrawerNavigator from './DrawerNavigator';
+
 import Preload from '../screens/Preload';
 import Login from '../screens/Login';
 import Register from '../screens/Register';
-import Home from '../screens/Home';
+import Home from '../screens/drawer/Home';
 import AccountActivation from '../screens/AccountActivation';
 
 import VerifyPasswordCode from '../screens/VerifyPasswordCode';
@@ -35,7 +37,8 @@ const StackNavigator = () => {
         <Stack.Screen name='verifyPasswordCode' component={VerifyPasswordCode} options={{headerShown:false}}/>
         <Stack.Screen name='resetPassword' component={ResetPassword} options={{headerShown:false}}/>
 
-        <Stack.Screen name='home' component={Home} options={{headerShown:false}}/>
+       
+        <Stack.Screen name="homeDrawer" component={DrawerNavigator} options={{headerShown:false}}/>
       
 
     </Stack.Navigator>

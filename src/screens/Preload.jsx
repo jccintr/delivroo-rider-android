@@ -10,7 +10,7 @@ const Preload = ({ navigation }) => {
     if (loading) return;
 
     if (isAuthenticated) {
-      const route = user?.emailVerifiedAt ? 'home' : 'accountActivation';
+      const route = user?.emailVerifiedAt ? 'homeDrawer' : 'accountActivation';
       navigation.reset({
         index: 0,
         routes: [{ name: route }],
