@@ -86,6 +86,27 @@ export function AuthProvider({ children }) {
     return handleRequest(() => authService.resetPassword(email, code, password));
   }, [handleRequest]);
 
+  const updateProfile = useCallback(async (data) => {
+      return handleRequest(async () => {
+        const updated = await authService.updateProfile(data);
+        setUser((prev) => ({ ...prev, ...updated }));
+        return updated;
+      });
+ }, [handleRequest]);
+
+ const uploadAvatar = useCallback(async (uri) => {
+        return handleRequest(async () => {
+          const result = await authService.uploadAvatar(uri);
+          setUser((prev) => ({
+            ...prev,
+            avatar: result.avatar,
+          }));
+          return result;
+        });
+  }, [handleRequest]);
+
+
+
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem('@token');
     setUser(null);
@@ -94,19 +115,21 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-        user,
-        loading,           // loading inicial (splash)
-        requestLoading,    // loading das requisições
-        error,
-        isAuthenticated: !!user,
-        login,
-        register,
-        logout,
-        verifyEmail,
-        resendVerificationEmailCode,
-        requestPasswordCode,
-        verifyPasswordCode,
-        resetPassword,
+          user,
+          loading,           // loading inicial (splash)
+          requestLoading,    // loading das requisições
+          error,
+          isAuthenticated: !!user,
+          login,
+          register,
+          logout,
+          verifyEmail,
+          resendVerificationEmailCode,
+          requestPasswordCode,
+          verifyPasswordCode,
+          resetPassword,
+          updateProfile,
+          uploadAvatar,
         
       }}
     >

@@ -1,11 +1,13 @@
 
 import { useAuth } from '../../contexts/AuthContext'
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity,StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
 import DeliveryCard from '../../components/cards/DeliveryCard';
 import NetworkImage from '../../components/reusable/NetworkImage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useStatusBar} from '../../hooks/useStatusBar';
 
 // mock das entregas - remover depois
 const AVAILABLE_DELIVERIES = [
@@ -30,6 +32,8 @@ const AVAILABLE_DELIVERIES = [
 const Home = ({navigation}) => {
   const { logout, user } = useAuth();
   const [isOnline, setIsOnline] = useState(true);
+  const insets = useSafeAreaInsets();
+  useStatusBar(colors.orange, 'dark-content');
 
     // Mock — substitua pelos dados reais do entregador (ex: GET /rider/summary)
   const stats = {
@@ -57,12 +61,8 @@ const Home = ({navigation}) => {
 
 
 return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-       <StatusBar 
-              backgroundColor={colors.orange}
-              barStyle="dark-content" 
-              translucent={false} 
-            />
+    <ScrollView style={styles.screen} contentContainerStyle={{ paddingTop: insets.top, paddingBottom: spacing.xxl }}>
+       
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -76,7 +76,7 @@ return (
             <Text style={styles.name}>{user?.name}</Text>
           </View>
          
-            {user?.avatar&&<NetworkImage source={user?.avatar} width={40} height={40} radius={20}/>}
+           
          
         </View>
 
@@ -135,10 +135,10 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: colors.orange,
-    borderBottomLeftRadius: radius.xxl,
-    borderBottomRightRadius: radius.xxl,
+    //borderBottomLeftRadius: radius.xxl,
+    //borderBottomRightRadius: radius.xxl,
     padding: spacing.xl,
-    paddingTop: spacing.xxl,
+   // paddingTop: spacing.xxl,
   },
   headerTop: {
     flexDirection: 'row',

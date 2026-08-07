@@ -16,12 +16,14 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 export default function RequestPasswordCode({ navigation }) {
   const [email, setEmail] = useState('');
   const {requestPasswordCode, error } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const alert = useAlertModal();
+  useStatusBar(colors.cream, 'dark-content');
 
   const handleSendCode = async () => {
 

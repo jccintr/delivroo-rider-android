@@ -1,5 +1,5 @@
 // UpdateProfile.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,19 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  StatusBar
+  
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../../theme/theme';
 import AlertModal from '../../components/modals/AlertModal';
 import useAlertModal from '../../hooks/useAlertModal';
+import { useAuth } from '../../contexts/AuthContext';
+import {useStatusBar} from '../../hooks/useStatusBar';
 
 export default function Profile() {
   const alert = useAlertModal();
+  const { user, updateProfile, uploadAvatar } = useAuth();
 
   const [avatarUri, setAvatarUri] = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -29,6 +32,15 @@ export default function Profile() {
   const [phone, setPhone] = useState('(35) 99999-1234');
   const [document, setDocument] = useState('000.000.000-00');
   const [savingProfile, setSavingProfile] = useState(false);
+  useStatusBar(colors.white, 'dark-content');
+
+  useEffect(() => {
+    if (!user) return;
+    setName(user.name ?? '');
+    setPhone(user.phone ?? '');
+    setDocument(user.doc ?? '');
+    setAvatarUri(user.avatar ?? null);
+  }, [user]);
 
   async function handlePickAvatar() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -55,21 +67,26 @@ export default function Profile() {
     handleUploadAvatar(uri);
   }
 
-  async function handleUploadAvatar(uri) {
+ async function handleUploadAvatar(uri) {
     setUploadingAvatar(true);
     try {
-      // TODO: integrar com a API — request separada, ex:
-      // const formData = new FormData();
-      // formData.append('avatar', { uri, name: 'avatar.jpg', type: 'image/jpeg' });
-      // await api.post('/rider/avatar', formData);
-      console.log('Enviando avatar:', uri);
-
-      await new Promise((resolve) => setTimeout(resolve, 800)); // simula chamada
+      const result = await uploadAvatar(uri);
+      setAvatarUri(result.avatar);
+      alert.show({
+        type: 'success',
+        title: 'Avatar atualizado',
+        message: 'Sua foto foi atualizada com sucesso.',
+      });
     } catch (error) {
+      // volta para o avatar anterior do server
+      setAvatarUri(user?.avatar ?? null);
       alert.show({
         type: 'error',
         title: 'Erro ao atualizar avatar',
-        message: 'Não foi possível enviar sua foto. Tente novamente.',
+        message:
+          error?.data?.error ||
+          error?.message ||
+          'Não foi possível enviar sua foto. Tente novamente.',
       });
     } finally {
       setUploadingAvatar(false);
@@ -77,22 +94,22 @@ export default function Profile() {
   }
 
   async function handleSaveProfile() {
-    if (!name.trim() || !phone.trim() || !document.trim()) {
+    if (!name.trim() || !phone.trim()) {
       alert.show({
         type: 'error',
         title: 'Campos obrigatórios',
-        message: 'Preencha nome, telefone e documento para continuar.',
+        message: 'Preencha nome e telefone para continuar.',
       });
       return;
     }
 
     setSavingProfile(true);
     try {
-      // TODO: integrar com a API — request separada da do avatar, ex:
-      // await api.put('/rider/profile', { name, phone, document });
-      console.log('Salvando perfil:', { name, phone, document });
-
-      await new Promise((resolve) => setTimeout(resolve, 800)); // simula chamada
+      await updateProfile({
+        name: name.trim(),
+        phone: phone.trim(),
+        doc: document.trim() || null,
+      });
 
       alert.show({
         type: 'success',
@@ -103,7 +120,10 @@ export default function Profile() {
       alert.show({
         type: 'error',
         title: 'Erro ao salvar',
-        message: 'Não foi possível atualizar seus dados. Tente novamente.',
+        message:
+          error?.data?.error ||
+          error?.message ||
+          'Não foi possível atualizar seus dados. Tente novamente.',
       });
     } finally {
       setSavingProfile(false);
@@ -115,7 +135,7 @@ export default function Profile() {
       style={{ flex: 1, backgroundColor: colors.cream }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     > 
-     <StatusBar backgroundColor={colors.white} barStyle="dark-content" translucent={false} />
+     
       <ScrollView  contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" >
          {/* Avatar */}
         <View style={styles.avatarWrap}>

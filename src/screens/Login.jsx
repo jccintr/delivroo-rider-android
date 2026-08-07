@@ -17,6 +17,8 @@ import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 import logo from '../assets/rider-orange.png';
 import AssetImage from '../components/reusable/AssetImage';
+import {useStatusBar} from '../hooks/useStatusBar';
+import { useKeyboardBehavior } from '../hooks/useKeyboardBehavior';
 
 
 const Login = ({navigation}) => {
@@ -26,6 +28,8 @@ const Login = ({navigation}) => {
   const {login, requestLoading, error } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const alert = useAlertModal();
+  useStatusBar(colors.cream, 'dark-content');
+  const keyboardBehavior = useKeyboardBehavior();
  
 
  const handleLogin = async () => {
@@ -63,19 +67,9 @@ const Login = ({navigation}) => {
 
 
    return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.cream }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <StatusBar 
-        backgroundColor={colors.cream} 
-        barStyle="dark-content" 
-        translucent={false} 
-      />
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cream }} behavior={keyboardBehavior} >
+     
+      <ScrollView  contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" >
         <View style={{alignSelf: 'center'}}>
            <AssetImage radius={0} height={120} width={120} source={logo} mode={'contain'} />
         </View>

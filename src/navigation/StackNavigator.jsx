@@ -10,7 +10,6 @@ import AccountActivation from '../screens/AccountActivation';
 import VerifyPasswordCode from '../screens/VerifyPasswordCode';
 import ResetPassword from '../screens/ResetPassword';
 import RequestPasswordCode from '../screens/RequestPasswordCode';
-import { StatusBar } from 'react-native';
 import {colors} from '../theme/theme'
 
 
@@ -19,12 +18,7 @@ const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
   return (
-    <>
-    <StatusBar 
-        backgroundColor={colors.orange} 
-        barStyle="dark-content" 
-        translucent={false} 
-      />
+       
     <Stack.Navigator initialRouteName='preload'>
 
         <Stack.Screen name='preload' component={Preload} options={{headerShown:false}}/>
@@ -42,7 +36,7 @@ const StackNavigator = () => {
       
 
     </Stack.Navigator>
-    </>
+   
   )
 }
 

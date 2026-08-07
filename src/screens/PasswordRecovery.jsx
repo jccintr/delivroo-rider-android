@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 export default function PasswordRecovery({ navigation }) {
   const [email, setEmail] = useState('');
+   useStatusBar(colors.cream, 'dark-content');
 
   function handleSendCode() {
     // TODO: integrar com a API — envia um código de verificação por e-mail

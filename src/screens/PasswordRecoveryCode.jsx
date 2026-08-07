@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 const CODE_LENGTH = 4;
 
@@ -19,6 +20,7 @@ export default function PasswordRecoveryCode({ navigation, route }) {
 
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''));
   const inputsRef = useRef([]);
+   useStatusBar(colors.cream, 'dark-content');
 
   function handleChangeDigit(value, index) {
     const digit = value.replace(/[^0-9]/g, '').slice(-1);

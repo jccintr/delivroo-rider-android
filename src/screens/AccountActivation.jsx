@@ -15,6 +15,8 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext';
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import {useStatusBar} from '../hooks/useStatusBar';
+
 
 const CODE_LENGTH = 4;
 
@@ -26,6 +28,9 @@ const AccountActivation = ({ navigation, route }) => {
   const alert = useAlertModal();
   const [isLoading, setIsLoading] = React.useState(false);
   const email = user?.email ?? '';
+  useStatusBar(colors.cream, 'dark-content');
+
+
   function handleChangeDigit(value, index) {
     // aceita apenas 1 dígito numérico por caixa
     const digit = value.replace(/[^0-9]/g, '').slice(-1);

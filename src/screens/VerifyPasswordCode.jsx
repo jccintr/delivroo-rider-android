@@ -14,6 +14,7 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 const CODE_LENGTH = 4;
 
@@ -25,6 +26,7 @@ export default function VerifyPasswordCode({ navigation, route }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const alert = useAlertModal();
   const {verifyPasswordCode,requestPasswordCode, error } = useAuth();
+  useStatusBar(colors.cream, 'dark-content');
 
   function handleChangeDigit(value, index) {
     const digit = value.replace(/[^0-9]/g, '').slice(-1);

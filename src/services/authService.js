@@ -53,5 +53,26 @@ export const authService = {
       body: JSON.stringify({ email, code, password }),
     });
   },
+  updateProfile: (data) => {
+    return api('/riders/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  uploadAvatar: (uri) => {
+    const formData = new FormData();
+    formData.append('avatar', {
+      uri,
+      type: 'image/jpeg',
+      name: 'avatar.jpg',
+    });
+
+    return api('/riders/me/avatar', {
+      method: 'PATCH',
+      body: formData,
+    });
+  },
+
 
 };

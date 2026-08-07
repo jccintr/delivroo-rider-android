@@ -20,13 +20,19 @@
         "foregroundImage": "./src/assets/delivroo-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.jccintr.delivroorider"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9129f113-aa30-4415-8840-5f9b183f6c45"
+      }
+    }
   }
 }

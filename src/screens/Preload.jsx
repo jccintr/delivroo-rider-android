@@ -4,10 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing } from '../theme/theme';
 import AssetImage from '../components/reusable/AssetImage';
 import rider from '../assets/rider-cream.png';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 
 const Preload = ({ navigation }) => {
   const { isAuthenticated, loading, user } = useAuth();
+  useStatusBar(colors.orange, 'dark-content');
 
   useEffect(() => {
     if (loading) return;

@@ -15,6 +15,7 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import {useStatusBar} from '../hooks/useStatusBar';
 
 const MIN_LENGTH = 6;
 
@@ -27,6 +28,7 @@ export default function ResetPassword({ navigation, route }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const alert = useAlertModal();
   const {resetPassword, error } = useAuth();
+  useStatusBar(colors.cream, 'dark-content');
 
   const isTooShort = password.length > 0 && password.length < MIN_LENGTH;
   const doesNotMatch =  confirmPassword.length > 0 && confirmPassword !== password;
