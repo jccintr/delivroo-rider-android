@@ -16,6 +16,8 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import logo from '../assets/rider-orange.png';
+import AssetImage from '../components/reusable/AssetImage';
 
  
 const VEHICLES = [
@@ -80,6 +82,9 @@ const Register = ({navigation}) => {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
+         <View style={{alignSelf: 'center'}}>
+           <AssetImage radius={0} height={100} width={100} source={logo} mode={'contain'} />
+        </View>
         <Text style={styles.h1}>Delivroo Express</Text>
  
         <Text style={styles.title}>Criar conta</Text>
@@ -219,13 +224,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orangeDark,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: 0,
   },
    h1: {
     fontFamily: 'Baloo2_700Bold',
     color: colors.orange,
     fontSize: 34,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xs,
     textAlign: 'center',
   },
   title: {

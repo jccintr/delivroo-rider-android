@@ -1,10 +1,11 @@
 
 import { useAuth } from '../../contexts/AuthContext'
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity,StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
 import DeliveryCard from '../../components/cards/DeliveryCard';
+import NetworkImage from '../../components/reusable/NetworkImage';
 
 // mock das entregas - remover depois
 const AVAILABLE_DELIVERIES = [
@@ -57,6 +58,11 @@ const Home = ({navigation}) => {
 
 return (
     <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+       <StatusBar 
+              backgroundColor={colors.orange}
+              barStyle="dark-content" 
+              translucent={false} 
+            />
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity
@@ -69,9 +75,9 @@ return (
             <Text style={styles.greeting}>Olá,</Text>
             <Text style={styles.name}>{user?.name}</Text>
           </View>
-          <TouchableOpacity onPress={handleLogout} style={styles.avatar}>
-            <Ionicons name="person-outline" size={18} color={colors.white} />
-          </TouchableOpacity>
+         
+            {user?.avatar&&<NetworkImage source={user?.avatar} width={40} height={40} radius={20}/>}
+         
         </View>
 
         <View style={styles.statusToggle}>

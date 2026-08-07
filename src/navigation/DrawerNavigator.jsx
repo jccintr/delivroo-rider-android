@@ -15,11 +15,8 @@ const Drawer = createDrawerNavigator();
 const DrawerNavigator = () => {
   return (
     <>
-    <StatusBar 
-        backgroundColor={colors.cream}
-        barStyle="dark-content" 
-        translucent={false} 
-      />
+    {/* <StatusBar backgroundColor={colors.cream} barStyle="dark-content" translucent={false} /> */}
+   
     <Drawer.Navigator drawerContent={ props => <CustomDrawer {...props}/> }>
        
        <Drawer.Screen name='home' component={Home} options={{headerShown:false}}/>

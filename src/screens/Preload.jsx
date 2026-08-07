@@ -2,6 +2,9 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing } from '../theme/theme';
+import AssetImage from '../components/reusable/AssetImage';
+import rider from '../assets/rider-cream.png';
+
 
 const Preload = ({ navigation }) => {
   const { isAuthenticated, loading, user } = useAuth();
@@ -25,6 +28,9 @@ const Preload = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+       <View style={{alignSelf: 'center'}}>
+          <AssetImage radius={0} height={120} width={120} source={rider} mode={'contain'} />
+       </View>
       <Text style={styles.h1}>Delivroo Express</Text>
       <ActivityIndicator style={{ marginTop: 40 }} size="large" color={colors.cream} />
     </View>

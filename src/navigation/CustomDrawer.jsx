@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View,Linking } from 'react-native'
 import {useContext} from 'react'
 import { DrawerContentScrollView,DrawerItem } from '@react-navigation/drawer'
-import { MaterialIcons, FontAwesome, FontAwesome6,MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome, FontAwesome6,MaterialCommunityIcons,Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetworkImage from '../components/reusable/NetworkImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,18 +10,22 @@ import { useAuth } from '../contexts/AuthContext';
 
 const CustomDrawer = ({ navigation }) => {
   //  const {loggedUser,setLoggedUser,setApiToken} = useContext(AuthContext);
-    const version = '1.6.0 18-07-2026'; 
+    const version = '0.0.5 beta'; 
     const insets = useSafeAreaInsets();
      const { logout, user } = useAuth();
 
 
-const handleLogout = async  () => {
-  /*
-    await AsyncStorage.removeItem('token');
-    setApiToken(null);
-    setLoggedUser(null);
-    navigation.reset({routes:[{name:'login'}]})*/
-}
+ const handleLogout = async () => {
+  try {
+    await logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'login' }],
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 
   return (
@@ -48,14 +52,14 @@ const handleLogout = async  () => {
                 allowFontScaling={false}
             />
               <DrawerItem
-                icon={()=><MaterialCommunityIcons name="map-marker-distance" size={24} color={colors.inkSoft} />}
+                icon={()=><Feather name="package" size={24} color={colors.inkSoft} />}
                 label="Minhas Entregas"
                 labelStyle={{color:colors.inkSoft}}
                 onPress={() => navigation.navigate('deliveries')}
                 allowFontScaling={false}
             />
               <DrawerItem
-                icon={()=><MaterialCommunityIcons name="map-marker-distance" size={24} color={colors.inkSoft} />}
+                icon={()=><MaterialIcons name="delivery-dining" size={24} color={colors.inkSoft} />}
                 label="Meu Veículo"
                 labelStyle={{color:colors.inkSoft}}
                 onPress={() => navigation.navigate('vehicleDetails')}
@@ -63,9 +67,9 @@ const handleLogout = async  () => {
             />
             
             <DrawerItem
-                icon={()=><MaterialIcons name="logout" size={24} color={colors.inkSoft} />}
+                icon={()=><MaterialIcons name="logout" size={24} color={'#ff0000'} />}
                 label="Sair"
-                labelStyle={'#ff0000'}
+                labelStyle={{color: '#ff0000'}}
                 onPress={handleLogout}
                 allowFontScaling={false}
             />
@@ -92,6 +96,6 @@ const styles = StyleSheet.create({
     versionText:{
       marginBottom:10,
       textAlign:'center',
-      color:cores.logobackground
+      color:colors.ink
     }
 })

@@ -5,6 +5,7 @@ import { useFonts as useInter, Inter_400Regular, Inter_500Medium, Inter_600SemiB
 import { useFonts as useMono, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
 import {View} from 'react-native';
 import {AuthProvider} from './src/contexts/AuthContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
   const [baloo2Loaded] = useBaloo2({
@@ -33,10 +34,12 @@ export default function App() {
 }
 
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <StackNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+        <AuthProvider>
+          <NavigationContainer>
+            <StackNavigator />
+          </NavigationContainer>
+        </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

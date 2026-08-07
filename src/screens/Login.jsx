@@ -15,6 +15,8 @@ import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
+import logo from '../assets/rider-orange.png';
+import AssetImage from '../components/reusable/AssetImage';
 
 
 const Login = ({navigation}) => {
@@ -74,13 +76,13 @@ const Login = ({navigation}) => {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
+        <View style={{alignSelf: 'center'}}>
+           <AssetImage radius={0} height={120} width={120} source={logo} mode={'contain'} />
+        </View>
+       
         <Text style={styles.h1}>Delivroo Express</Text>
-      
- 
         <Text style={styles.title}>Bem-vindo de volta</Text>
-        <Text style={styles.subtitle}>
-          Entre para começar a aceitar entregas
-        </Text>
+        <Text style={styles.subtitle}>Entre para começar a aceitar entregas</Text>
  
         <View style={styles.fields}>
           {/* E-mail */}
