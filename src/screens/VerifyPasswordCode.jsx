@@ -15,6 +15,7 @@ import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 import {useStatusBar} from '../hooks/useStatusBar';
+import { useKeyboardBehavior } from '../hooks/useKeyboardBehavior';
 
 const CODE_LENGTH = 4;
 
@@ -27,6 +28,7 @@ export default function VerifyPasswordCode({ navigation, route }) {
   const alert = useAlertModal();
   const {verifyPasswordCode,requestPasswordCode, error } = useAuth();
   useStatusBar(colors.cream, 'dark-content');
+  const keyboardBehavior = useKeyboardBehavior();
 
   function handleChangeDigit(value, index) {
     const digit = value.replace(/[^0-9]/g, '').slice(-1);
@@ -90,8 +92,8 @@ export default function VerifyPasswordCode({ navigation, route }) {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.white }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: colors.cream }}
+      behavior={keyboardBehavior}
     >
       <View style={styles.container}>
         <View style={styles.iconWrap}>

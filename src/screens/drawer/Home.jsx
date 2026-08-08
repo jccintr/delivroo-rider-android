@@ -33,7 +33,7 @@ const Home = ({navigation}) => {
   const { logout, user } = useAuth();
   const [isOnline, setIsOnline] = useState(true);
   const insets = useSafeAreaInsets();
-  useStatusBar(colors.orange, 'dark-content');
+  useStatusBar(colors.orange, 'light-content');
 
     // Mock — substitua pelos dados reais do entregador (ex: GET /rider/summary)
   const stats = {
@@ -61,14 +61,11 @@ const Home = ({navigation}) => {
 
 
 return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ paddingTop: insets.top, paddingBottom: spacing.xxl }}>
+    <ScrollView style={styles.screen} contentContainerStyle={{  paddingBottom: spacing.xxl }}>
        
-      <View style={styles.header}>
+      <View style={[styles.header,{ paddingTop: insets.top + spacing.xl }]}>
         <View style={styles.headerTop}>
-          <TouchableOpacity
-              onPress={() => navigation.openDrawer()}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
+          <TouchableOpacity  onPress={() => navigation.openDrawer()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} >
               <Ionicons name="menu-outline" size={26} color={colors.white} />
           </TouchableOpacity>
           <View style={{ flex: 1, marginLeft: spacing.md }}>
@@ -135,8 +132,8 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: colors.orange,
-    //borderBottomLeftRadius: radius.xxl,
-    //borderBottomRightRadius: radius.xxl,
+    borderBottomLeftRadius: radius.xxl,
+    borderBottomRightRadius: radius.xxl,
     padding: spacing.xl,
    // paddingTop: spacing.xxl,
   },

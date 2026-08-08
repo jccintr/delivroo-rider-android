@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 import {useStatusBar} from '../hooks/useStatusBar';
+import { useKeyboardBehavior } from '../hooks/useKeyboardBehavior';
 
 const MIN_LENGTH = 6;
 
@@ -29,6 +30,7 @@ export default function ResetPassword({ navigation, route }) {
   const alert = useAlertModal();
   const {resetPassword, error } = useAuth();
   useStatusBar(colors.cream, 'dark-content');
+  const keyboardBehavior = useKeyboardBehavior();
 
   const isTooShort = password.length > 0 && password.length < MIN_LENGTH;
   const doesNotMatch =  confirmPassword.length > 0 && confirmPassword !== password;
@@ -60,10 +62,8 @@ export default function ResetPassword({ navigation, route }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.cream }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cream }} behavior={keyboardBehavior} >
+      
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"

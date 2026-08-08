@@ -16,7 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 import {useStatusBar} from '../hooks/useStatusBar';
-
+import { useKeyboardBehavior } from '../hooks/useKeyboardBehavior';
 
 const CODE_LENGTH = 4;
 
@@ -29,7 +29,7 @@ const AccountActivation = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const email = user?.email ?? '';
   useStatusBar(colors.cream, 'dark-content');
-
+  const keyboardBehavior = useKeyboardBehavior();
 
   function handleChangeDigit(value, index) {
     // aceita apenas 1 dígito numérico por caixa
@@ -114,10 +114,8 @@ const AccountActivation = ({ navigation, route }) => {
   const isComplete = code.every((d) => d !== '');
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.white }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView  style={{ flex: 1, backgroundColor: colors.white }} behavior={keyboardBehavior}>
+      
       <View style={styles.container}>
         <View style={styles.iconWrap}>
           <Ionicons name="mail-open-outline" size={44} color={colors.green} />

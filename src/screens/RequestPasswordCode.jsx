@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
 import useAlertModal from '../hooks/useAlertModal';
 import {useStatusBar} from '../hooks/useStatusBar';
+import { useKeyboardBehavior } from '../hooks/useKeyboardBehavior';
 
 export default function RequestPasswordCode({ navigation }) {
   const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ export default function RequestPasswordCode({ navigation }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const alert = useAlertModal();
   useStatusBar(colors.cream, 'dark-content');
+  const keyboardBehavior = useKeyboardBehavior();
 
   const handleSendCode = async () => {
 
@@ -58,10 +60,7 @@ export default function RequestPasswordCode({ navigation }) {
   const isValid = email.trim().length > 3;
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.cream }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.cream }} behavior={keyboardBehavior}>
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"

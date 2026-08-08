@@ -2,13 +2,13 @@
   "expo": {
     "name": "Delivroo Entregador",
     "slug": "delivroo-rider",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./src/assets/delivroo-icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./src/assets/splash-icon.png",
+      "image": "./src/assets/delivroo-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

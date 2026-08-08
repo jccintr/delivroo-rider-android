@@ -1,12 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import DrawerNavigator from './DrawerNavigator';
-
 import Preload from '../screens/Preload';
 import Login from '../screens/Login';
 import Register from '../screens/Register';
 import Home from '../screens/drawer/Home';
 import AccountActivation from '../screens/AccountActivation';
-
 import VerifyPasswordCode from '../screens/VerifyPasswordCode';
 import ResetPassword from '../screens/ResetPassword';
 import RequestPasswordCode from '../screens/RequestPasswordCode';
