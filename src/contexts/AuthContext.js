@@ -105,6 +105,18 @@ export function AuthProvider({ children }) {
         });
   }, [handleRequest]);
 
+  const uploadDocument = useCallback(async (uri) => {
+    return handleRequest(async () => {
+      const result = await authService.uploadDocument(uri);
+      setUser((prev) => ({
+        ...prev,
+        document: result.document,
+      }));
+      return result;
+    });
+  }, [handleRequest]);
+
+
   const toggleOnline = useCallback(async () => {
       return handleRequest(async () => {
         const updated = await authService.toggleOnline();
@@ -138,6 +150,7 @@ export function AuthProvider({ children }) {
           resetPassword,
           updateProfile,
           uploadAvatar,
+          uploadDocument,
           toggleOnline
         
       }}
