@@ -8,6 +8,7 @@ import AccountActivation from '../screens/AccountActivation';
 import VerifyPasswordCode from '../screens/VerifyPasswordCode';
 import ResetPassword from '../screens/ResetPassword';
 import RequestPasswordCode from '../screens/RequestPasswordCode';
+import DocumentUpload from '../screens/DocumentUpload';
 import {colors} from '../theme/theme'
 
 
@@ -24,7 +25,7 @@ const StackNavigator = () => {
         <Stack.Screen name='login' component={Login} options={{headerShown:false}}/>
         <Stack.Screen name='register' component={Register} options={{headerShown:false}}/>
         <Stack.Screen name='accountActivation' component={AccountActivation} options={{headerShown:false}}/>
-
+        <Stack.Screen name='documentUpload' component={DocumentUpload} options={{headerShown:false}}/>
         <Stack.Screen name='requestPasswordCode' component={RequestPasswordCode} options={{headerShown:false}}/>
         <Stack.Screen name='verifyPasswordCode' component={VerifyPasswordCode} options={{headerShown:false}}/>
         <Stack.Screen name='resetPassword' component={ResetPassword} options={{headerShown:false}}/>
