@@ -74,8 +74,23 @@ export const authService = {
     });
   },
 
-  // authService
+  
 toggleOnline: () =>
   api('/riders/me/status', { method: 'PATCH' }),
+
+uploadDocument: (uri) => {
+    const formData = new FormData();
+    formData.append('document', {
+      uri,
+      type: 'image/jpeg',
+      name: 'document.jpg',
+    });
+ 
+    return api('/riders/me/document', {
+      method: 'PATCH',
+      body: formData,
+    });
+  },
+
 
 };
