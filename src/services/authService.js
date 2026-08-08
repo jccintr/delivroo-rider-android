@@ -74,5 +74,8 @@ export const authService = {
     });
   },
 
+  // authService
+toggleOnline: () =>
+  api('/riders/me/online', { method: 'PATCH' }),
 
 };

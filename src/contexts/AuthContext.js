@@ -105,6 +105,14 @@ export function AuthProvider({ children }) {
         });
   }, [handleRequest]);
 
+  const toggleOnline = useCallback(async () => {
+      return handleRequest(async () => {
+        const updated = await authService.toggleOnline();
+        setUser((prev) => ({ ...prev, ...updated }));
+        return updated;
+      });
+  }, [handleRequest]);
+
 
 
   const logout = useCallback(async () => {
@@ -130,6 +138,7 @@ export function AuthProvider({ children }) {
           resetPassword,
           updateProfile,
           uploadAvatar,
+          toggleOnline
         
       }}
     >

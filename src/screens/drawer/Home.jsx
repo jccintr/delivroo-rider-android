@@ -30,8 +30,8 @@ const AVAILABLE_DELIVERIES = [
 
 
 const Home = ({navigation}) => {
-  const { logout, user } = useAuth();
-  const [isOnline, setIsOnline] = useState(true);
+  const { logout, user,toggleOnline } = useAuth();
+  const [isOnline, setIsOnline] = useState(user.online);
   const insets = useSafeAreaInsets();
   useStatusBar(colors.orange, 'light-content');
 
@@ -59,6 +59,21 @@ const Home = ({navigation}) => {
   }
 };
 
+const handleToggleOnline = async ()=> {
+
+    try {
+
+       await toggleOnline();
+       setIsOnline(user.online);
+
+    } catch (err) {
+
+      console.log(err);
+
+    }
+
+}
+
 
 return (
     <ScrollView style={styles.screen} contentContainerStyle={{  paddingBottom: spacing.xxl }}>
@@ -83,7 +98,7 @@ return (
           </Text>
           <Switch
             value={isOnline}
-            onValueChange={setIsOnline}
+            onValueChange={handleToggleOnline}
             trackColor={{ false: 'rgba(255,255,255,0.3)', true: 'rgba(255,255,255,0.3)' }}
             thumbColor={isOnline ? colors.green : colors.white}
           />
