@@ -92,5 +92,12 @@ uploadDocument: (uri) => {
     });
   },
 
+  updateVehicle: (data) => {
+    return api('/riders/me/vehicle', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
 
 };

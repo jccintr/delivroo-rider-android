@@ -25,7 +25,7 @@ const VEHICLES = [
 
 export default function VehicleDetails() {
   const alert = useAlertModal();
-  const { user, updateProfile } = useAuth();
+  const { user, updateVehicle } = useAuth();
 
   const [vehicleType, setVehicleType] = useState(null);
   const [model, setModel] = useState('');
@@ -36,10 +36,10 @@ export default function VehicleDetails() {
 
   useEffect(() => {
     if (!user) return;
-    setVehicleType(user.vehicleType ?? null);
-    setModel(user.vehicleModel ?? '');
-    setColor(user.vehicleColor ?? '');
-    setPlate(user.vehiclePlate ?? '');
+    setVehicleType(user.vehicle.type ?? null);
+    setModel(user.vehicle.model ?? '');
+    setColor(user.vehicle.color ?? '');
+    setPlate(user.vehicle.plate ?? '');
   }, [user]);
 
   const selectedVehicle = VEHICLES.find((v) => v.key === vehicleType);
@@ -53,23 +53,14 @@ export default function VehicleDetails() {
       });
       return;
     }
-
-    if (!model.trim() || !color.trim() || !plate.trim()) {
-      alert.show({
-        type: 'error',
-        title: 'Campos obrigatórios',
-        message: 'Preencha modelo, cor e placa para continuar.',
-      });
-      return;
-    }
-
+   
     setSaving(true);
     try {
-      await updateProfile({
+      await updateVehicle({
         vehicleType,
-        vehicleModel: model.trim(),
-        vehicleColor: color.trim(),
-        vehiclePlate: plate.trim().toUpperCase(),
+        model: model.trim(),
+        color: color.trim(),
+        plate: plate.trim(),
       });
 
       alert.show({
@@ -140,7 +131,7 @@ export default function VehicleDetails() {
               <Ionicons name="construct-outline" size={18} color={colors.inkSoft} />
               <TextInput
                 style={styles.input}
-                placeholder="Ex: Honda CG 160"
+                placeholder="Ex: Honda CG 125"
                 placeholderTextColor={colors.inkSoft}
                 value={model}
                 onChangeText={setModel}

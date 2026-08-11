@@ -125,6 +125,14 @@ export function AuthProvider({ children }) {
       });
   }, [handleRequest]);
 
+  const updateVehicle = useCallback(async (data) => {
+      return handleRequest(async () => {
+        const updated = await authService.updateVehicle(data);
+        setUser((prev) => ({ ...prev, ...updated }));
+        return updated;
+      });
+ }, [handleRequest]);
+
 
 
   const logout = useCallback(async () => {
@@ -151,7 +159,8 @@ export function AuthProvider({ children }) {
           updateProfile,
           uploadAvatar,
           uploadDocument,
-          toggleOnline
+          toggleOnline,
+          updateVehicle
         
       }}
     >
