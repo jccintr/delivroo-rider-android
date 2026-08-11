@@ -9,8 +9,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true); // loading inicial (verificando token)
   const [requestLoading, setRequestLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [documentPromptShown, setDocumentPromptShown] = useState(false); // modal solicitando documento
 
   // Verifica se já existe token ao abrir o app
+
+  const markDocumentPromptShown = useCallback(() => {
+      setDocumentPromptShown(true);
+   }, []);
 
   useEffect(() => {
     async function loadStorageData() {
@@ -138,6 +143,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem('@token');
     setUser(null);
+    setDocumentPromptShown(false);
   }, []);
 
   return (
@@ -160,7 +166,9 @@ export function AuthProvider({ children }) {
           uploadAvatar,
           uploadDocument,
           toggleOnline,
-          updateVehicle
+          updateVehicle,
+          documentPromptShown,
+          markDocumentPromptShown,
         
       }}
     >

@@ -98,9 +98,7 @@ export default function DocumentUpload({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream }}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.iconWrap}>
-          <Ionicons name="document-text-outline" size={28} color={colors.white} />
-        </View>
+        
 
         <Text style={styles.title}>Envie seu documento</Text>
         <Text style={styles.subtitle}>
@@ -149,6 +147,7 @@ export default function DocumentUpload({ navigation }) {
         <Text style={styles.footerNote}>
           Usaremos essa foto apenas para verificar sua identidade.
         </Text>
+        
       </ScrollView>
 
       <AlertModal {...alert.props} />
@@ -263,4 +262,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.lg,
   },
+  
 });

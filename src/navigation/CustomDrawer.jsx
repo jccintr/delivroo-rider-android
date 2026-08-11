@@ -65,6 +65,13 @@ const CustomDrawer = ({ navigation }) => {
                 onPress={() => navigation.navigate('vehicleDetails')}
                 allowFontScaling={false}
             />
+             <DrawerItem
+                icon={()=><FontAwesome name="photo" size={24} color={colors.inkSoft} />}
+                label="Enviar Documento"
+                labelStyle={{color:colors.inkSoft}}
+                onPress={() => navigation.navigate('documentUpload')}
+                allowFontScaling={false}
+            />
             
             <DrawerItem
                 icon={()=><MaterialIcons name="logout" size={24} color={'#ff0000'} />}

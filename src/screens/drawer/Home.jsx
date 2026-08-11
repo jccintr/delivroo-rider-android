@@ -1,6 +1,6 @@
 
 import { useAuth } from '../../contexts/AuthContext'
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
@@ -8,6 +8,8 @@ import DeliveryCard from '../../components/cards/DeliveryCard';
 import NetworkImage from '../../components/reusable/NetworkImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {useStatusBar} from '../../hooks/useStatusBar';
+import AlertModal from '../../components/modals/AlertModal';
+import useAlertModal from '../../hooks/useAlertModal';
 
 // mock das entregas - remover depois
 const AVAILABLE_DELIVERIES = [
@@ -30,13 +32,35 @@ const AVAILABLE_DELIVERIES = [
 
 
 const Home = ({navigation}) => {
-  const { logout, user, toggleOnline, requestLoading } = useAuth();
+  const { logout, user, toggleOnline, requestLoading, documentPromptShown,markDocumentPromptShown } = useAuth();
   const [isOnline, setIsOnline] = useState(user?.online);
   const insets = useSafeAreaInsets();
-  useStatusBar(colors.orange, 'light-content');
-  //const isOnline = !!user?.online;
+  //const documentAlertShown = useRef(false);
+  const alert = useAlertModal();
+   useStatusBar(colors.orange, 'light-content');
+  
+    //const isOnline = !!user?.online;
 
-    // Mock — substitua pelos dados reais do entregador (ex: GET /rider/summary)
+    useEffect(() => {
+    if (!user) return;
+    if (documentPromptShown) return;
+    if (user.accountApprovedAt || user.documentImage) return;
+
+    markDocumentPromptShown();
+
+    alert.show({
+      type: 'warning',
+      title: 'Documento pendente',
+      message:
+        'Envie a foto da sua CNH (ou RG, caso bicicleta) para analisarmos e aprovarmos sua conta. Sem isso você não poderá ficar aceitar entregas.',
+      confirmText: 'Enviar documento',
+      onClose: () => {       
+        navigation.navigate('documentUpload'); 
+      },
+    });
+  }, [user,documentPromptShown,markDocumentPromptShown,alert,navigation]);
+
+  
   const stats = {
     earningsToday: 84,
     deliveriesToday: 6,
@@ -131,6 +155,7 @@ return (
           />
         ))}
       </View>
+      <AlertModal {...alert.props} />
     </ScrollView>
   );
 }
