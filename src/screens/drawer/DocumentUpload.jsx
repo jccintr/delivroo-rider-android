@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
-import { useAuth } from '../contexts/AuthContext';
-import AlertModal from '../components/modals/AlertModal';
-import useAlertModal from '../hooks/useAlertModal';
-import { useStatusBar } from '../hooks/useStatusBar';
+import { colors, fonts, fontSizes, radius, spacing } from '../../theme/theme';
+import { useAuth } from '../../contexts/AuthContext';
+import AlertModal from '../../components/modals/AlertModal';
+import useAlertModal from '../../hooks/useAlertModal';
+import { useStatusBar } from '../../hooks/useStatusBar';
 
 export default function DocumentUpload({ navigation }) {
   const { uploadDocument } = useAuth();

@@ -3,7 +3,7 @@ import Home from '../screens/drawer/Home';
 import Profile from '../screens/drawer/Profile';
 import Deliveries from '../screens/drawer/Deliveries';
 import VehicleDetails from '../screens/drawer/VehicleDetails';
-import DocumentUpload from '../screens/DocumentUpload';
+import DocumentUpload from '../screens/drawer/DocumentUpload';
 import CustomDrawer from './CustomDrawer';
 
 import { colors } from '../theme/theme';
