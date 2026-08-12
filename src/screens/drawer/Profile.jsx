@@ -1,4 +1,3 @@
-// UpdateProfile.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -20,6 +19,7 @@ import AlertModal from '../../components/modals/AlertModal';
 import useAlertModal from '../../hooks/useAlertModal';
 import { useAuth } from '../../contexts/AuthContext';
 import {useStatusBar} from '../../hooks/useStatusBar';
+import { useKeyboardBehavior } from '../../hooks/useKeyboardBehavior';
 
 export default function Profile() {
   const alert = useAlertModal();
@@ -32,6 +32,7 @@ export default function Profile() {
   const [phone, setPhone] = useState('(35) 99999-1234');
   const [document, setDocument] = useState('000.000.000-00');
   const [savingProfile, setSavingProfile] = useState(false);
+  const keyboardBehavior = useKeyboardBehavior();
   useStatusBar(colors.white, 'dark-content');
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function Profile() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.cream }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={keyboardBehavior}
     > 
      
       <ScrollView  contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" >
