@@ -20,6 +20,7 @@ import useAlertModal from '../../hooks/useAlertModal';
 import { useAuth } from '../../contexts/AuthContext';
 import {useStatusBar} from '../../hooks/useStatusBar';
 import { useKeyboardBehavior } from '../../hooks/useKeyboardBehavior';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 export default function Profile() {
   const alert = useAlertModal();
@@ -33,6 +34,7 @@ export default function Profile() {
   const [document, setDocument] = useState('000.000.000-00');
   const [savingProfile, setSavingProfile] = useState(false);
   const keyboardBehavior = useKeyboardBehavior();
+   const headerHeight = useHeaderHeight();
   useStatusBar(colors.white, 'dark-content');
 
   useEffect(() => {
@@ -135,6 +137,7 @@ export default function Profile() {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.cream }}
       behavior={keyboardBehavior}
+       keyboardVerticalOffset={headerHeight}
     > 
      
       <ScrollView  contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" >

@@ -17,6 +17,7 @@ import useAlertModal from '../../hooks/useAlertModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useStatusBar } from '../../hooks/useStatusBar';
 import { useKeyboardBehavior } from '../../hooks/useKeyboardBehavior';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 const VEHICLES = [
   { key: 'Moto', label: 'Moto', icon: 'motorbike' },
@@ -34,6 +35,7 @@ export default function VehicleDetails() {
   const [plate, setPlate] = useState('');
   const [saving, setSaving] = useState(false);
   const keyboardBehavior = useKeyboardBehavior();
+  const headerHeight = useHeaderHeight();
   useStatusBar(colors.white, 'dark-content');
 
   useEffect(() => {
@@ -88,6 +90,7 @@ export default function VehicleDetails() {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: colors.cream }}
       behavior={keyboardBehavior}
+      keyboardVerticalOffset={headerHeight}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         {/* Ícone do veículo */}

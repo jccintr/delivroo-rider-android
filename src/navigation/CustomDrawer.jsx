@@ -44,6 +44,13 @@ const CustomDrawer = ({ navigation }) => {
                 onPress={() => navigation.navigate('homeDrawer', { screen: 'home' })}
                 allowFontScaling={false}
             />
+            <DrawerItem
+                icon={()=><Feather name="package" size={24} color={colors.inkSoft} />}
+                label="Minhas Entregas"
+                labelStyle={{color:colors.inkSoft}}
+                onPress={() => navigation.navigate('deliveries')}
+                allowFontScaling={false}
+            />
              <DrawerItem
                 icon={()=><FontAwesome name="user-circle" size={24} color={colors.inkSoft} />}
                 label="Meu Perfil"
@@ -51,14 +58,7 @@ const CustomDrawer = ({ navigation }) => {
                 onPress={() => navigation.navigate('profile')}
                 allowFontScaling={false}
             />
-              <DrawerItem
-                icon={()=><Feather name="package" size={24} color={colors.inkSoft} />}
-                label="Minhas Entregas"
-                labelStyle={{color:colors.inkSoft}}
-                onPress={() => navigation.navigate('deliveries')}
-                allowFontScaling={false}
-            />
-              <DrawerItem
+            <DrawerItem
                 icon={()=><MaterialIcons name="delivery-dining" size={24} color={colors.inkSoft} />}
                 label="Meu Veículo"
                 labelStyle={{color:colors.inkSoft}}
