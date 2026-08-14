@@ -12,7 +12,9 @@ const CustomDrawer = ({ navigation }) => {
   //  const {loggedUser,setLoggedUser,setApiToken} = useContext(AuthContext);
     const version = '0.0.5 beta'; 
     const insets = useSafeAreaInsets();
-     const { logout, user } = useAuth();
+    const { logout, user } = useAuth();
+
+    const isAccountApproved = !!user?.accountApprovedAt;
 
 
  const handleLogout = async () => {
@@ -31,10 +33,32 @@ const CustomDrawer = ({ navigation }) => {
   return (
     <View style={{flex:1,marginTop:insets.top,marginBottom:insets.bottom,backgroundColor:colors.cream}}>
         <DrawerContentScrollView>
+              
               <View style={styles.header}>
-                {user?.avatar==null?<FontAwesome name="user-circle" size={60} color={colors.inkSoft} />:<NetworkImage source={user?.avatar} width={80} height={80} radius={40}/>}
-                <Text allowFontScaling={false} style={{fontWeight:'bold',color:colors.inkSoft}}>{user?.name}</Text>
-                <Text allowFontScaling={false} style={{color:colors.inkSoft}}>{user?.email}</Text>
+                {user?.avatar == null ? (
+                  <FontAwesome name="user-circle" size={60} color={colors.inkSoft} />
+                ) : (
+                  <NetworkImage source={user?.avatar} width={80} height={80} radius={40} />
+                )}
+
+                {/* Nome + badge de conta aprovada */}
+                <View style={styles.nameRow}>
+                  <Text allowFontScaling={false} style={styles.nameText}>
+                    {user?.name}
+                  </Text>
+                  {isAccountApproved && (
+                    <View style={styles.approvedBadge}>
+                      <MaterialIcons name="verified" size={12} color={colors.white} />
+                      <Text allowFontScaling={false} style={styles.approvedBadgeText}>
+                        Aprovado
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <Text allowFontScaling={false} style={{ color: colors.inkSoft }}>
+                  {user?.email}
+                </Text>
               </View>
               
               <DrawerItem
@@ -65,13 +89,15 @@ const CustomDrawer = ({ navigation }) => {
                 onPress={() => navigation.navigate('vehicleDetails')}
                 allowFontScaling={false}
             />
-             <DrawerItem
-                icon={()=><FontAwesome name="photo" size={24} color={colors.inkSoft} />}
-                label="Enviar Documento"
-                labelStyle={{color:colors.inkSoft}}
-                onPress={() => navigation.navigate('documentUpload')}
-                allowFontScaling={false}
-            />
+            {!isAccountApproved && (
+              <DrawerItem
+                  icon={()=><FontAwesome name="photo" size={24} color={colors.inkSoft} />}
+                  label="Enviar Documento"
+                  labelStyle={{color:colors.inkSoft}}
+                  onPress={() => navigation.navigate('documentUpload')}
+                  allowFontScaling={false}
+              />
+            )}
             
             <DrawerItem
                 icon={()=><MaterialIcons name="logout" size={24} color={'#ff0000'} />}
@@ -100,6 +126,32 @@ const styles = StyleSheet.create({
         flexDirection:'column',
         alignItems: 'center',
     },
+    nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  nameText: {
+    fontWeight: 'bold',
+    color: colors.inkSoft,
+  },
+    approvedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.green,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    gap: 4,
+  },
+  approvedBadgeText: {
+    color: colors.white,
+    fontSize: 11,
+    fontWeight: '600',
+  },
     versionText:{
       marginBottom:10,
       textAlign:'center',
