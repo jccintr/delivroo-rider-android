@@ -28,12 +28,13 @@ export const authService = {
     });
   },
 
+  /*
   resendVerificationEmailCode: () => {
      return api('/riders/verify-account/resend', {
       method: 'POST',
     });
   },
-
+*/
   requestPasswordCode: (email) => {
     return api('/riders/password/request', {
       method: 'POST',

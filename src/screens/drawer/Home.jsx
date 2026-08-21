@@ -1,45 +1,80 @@
-
 import { useAuth } from '../../contexts/AuthContext'
-import React, { useState, useEffect} from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch,TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
 import DeliveryCard from '../../components/cards/DeliveryCard';
-import NetworkImage from '../../components/reusable/NetworkImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {useStatusBar} from '../../hooks/useStatusBar';
 import AlertModal from '../../components/modals/AlertModal';
 import useAlertModal from '../../hooks/useAlertModal';
+import { deliveryService } from '../../services/deliveryService';
 
-// mock das entregas - remover depois
-const AVAILABLE_DELIVERIES = [
-  {
-    id: '1',
-    storeName: 'Pizzaria Bella Napoli',
-    distanceKm: 2.3,
-    price: 12.5,
-    category: 'pizza',
-  },
-  {
-    id: '2',
-    storeName: 'Burger House',
-    distanceKm: 1.1,
-    price: 9.0,
-    category: 'burger',
-  },
-];
-
-
+// Intervalo de atualização automática da lista de entregas disponíveis.
+// TODO: quando o push notification de "nova entrega" existir, este polling
+// pode virar só um fallback (aumentar o intervalo ou remover), já que o
+// push vai avisar o rider em tempo real.
+const POLLING_INTERVAL_MS = 20000;
 
 const Home = ({navigation}) => {
   const { logout, user, toggleOnline, requestLoading, documentPromptShown,markDocumentPromptShown } = useAuth();
   const [isOnline, setIsOnline] = useState(user?.online);
+  const [deliveries, setDeliveries] = useState([]);
+  const [loadingDeliveries, setLoadingDeliveries] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
-  //const documentAlertShown = useRef(false);
   const alert = useAlertModal();
-   useStatusBar(colors.orange, 'light-content');
-  
-    //const isOnline = !!user?.online;
+  useStatusBar(colors.orange, 'light-content');
+
+  // Evita setState depois do componente desmontar (ex: usuário navega para
+  // outra tela durante um fetch em andamento no meio do polling).
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const fetchDeliveries = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoadingDeliveries(true);
+
+    try {
+      const data = await deliveryService.listAvailable();
+      if (isMountedRef.current) {
+        setDeliveries(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.log('Erro ao buscar entregas disponíveis:', err);
+    } finally {
+      if (isMountedRef.current) {
+        setLoadingDeliveries(false);
+        setRefreshing(false);
+      }
+    }
+  }, []);
+
+  // Só busca/atualiza a lista enquanto o rider está online — offline não
+  // tem sentido mostrar (nem consultar) entregas disponíveis.
+  useEffect(() => {
+    if (!isOnline) {
+      setDeliveries([]);
+      return;
+    }
+
+    fetchDeliveries();
+
+    const intervalId = setInterval(() => {
+      fetchDeliveries({ silent: true });
+    }, POLLING_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [isOnline, fetchDeliveries]);
+
+  function handleRefresh() {
+    setRefreshing(true);
+    fetchDeliveries({ silent: true });
+  }
 
     useEffect(() => {
     if (!user) return;
@@ -94,10 +129,8 @@ const handleToggleOnline = async () => {
   }
 };
 
-
-return (
-    <ScrollView style={styles.screen} contentContainerStyle={{  paddingBottom: spacing.xxl }}>
-       
+  return (
+    <View style={[styles.screen,{paddingBottom: insets.bottom}]}>
       <View style={[styles.header,{ paddingTop: insets.top + spacing.xl }]}>
         <View style={styles.headerTop}>
           <TouchableOpacity  onPress={() => navigation.openDrawer()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} >
@@ -107,9 +140,6 @@ return (
             <Text style={styles.greeting}>Olá,</Text>
             <Text style={styles.name}>{user?.name}</Text>
           </View>
-         
-           
-         
         </View>
 
         <View style={styles.statusToggle}>
@@ -143,20 +173,40 @@ return (
 
       <Text style={styles.sectionTitle}>Novas entregas para você</Text>
 
-      <View style={styles.list}>
-        {AVAILABLE_DELIVERIES.map((delivery) => (
+      {!isOnline && (
+        <Text style={styles.emptyHint}>
+          Fique online para ver as entregas disponíveis na sua região.
+        </Text>
+      )}
+
+      {isOnline && loadingDeliveries && deliveries.length === 0 && (
+        <ActivityIndicator color={colors.orange} style={{ marginTop: spacing.md }} />
+      )}
+
+      {isOnline && !loadingDeliveries && deliveries.length === 0 && (
+        <Text style={styles.emptyHint}>
+          Nenhuma entrega disponível no momento. A lista atualiza automaticamente.
+        </Text>
+      )}
+
+      <FlatList
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        data={isOnline ? deliveries : []}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
           <DeliveryCard
-            key={delivery.id}
-            storeName={delivery.storeName}
-            distanceKm={delivery.distanceKm}
-            price={delivery.price}
-            category={delivery.category}
-            onPress={() => handleOpenDelivery(delivery.id)}
+            delivery={item}
+            onPress={() => handleOpenDelivery(item._id)}
           />
-        ))}
-      </View>
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
+        refreshing={refreshing}
+        onRefresh={isOnline ? handleRefresh : undefined}
+      />
+
       <AlertModal {...alert.props} />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -166,13 +216,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.cream,
+    
   },
   header: {
     backgroundColor: colors.orange,
     borderBottomLeftRadius: radius.xxl,
     borderBottomRightRadius: radius.xxl,
     padding: spacing.xl,
-   // paddingTop: spacing.xxl,
   },
   headerTop: {
     flexDirection: 'row',
@@ -188,14 +238,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingBold,
     fontSize: fontSizes.lg,
     color: colors.white,
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   statusToggle: {
     marginTop: spacing.lg,
@@ -246,8 +288,20 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     marginBottom: spacing.sm,
   },
-  list: {
+  emptyHint: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: fontSizes.sm,
+    color: colors.inkSoft,
     paddingHorizontal: spacing.xl,
-    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  // A FlatList é o único elemento com flex:1 — é ela quem ocupa o espaço
+  // restante da tela e rola; tudo acima dela fica fixo.
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxl,
   },
 });

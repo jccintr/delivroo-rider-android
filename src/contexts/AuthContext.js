@@ -75,10 +75,11 @@ export function AuthProvider({ children }) {
     });
   }, [handleRequest]);
 
+  /*
   const resendVerificationEmailCode = useCallback(async () => {
     return handleRequest(() => authService.resendVerificationEmailCode());
   }, [handleRequest]);
-
+*/
   const requestPasswordCode = useCallback(async (email) => {
     return handleRequest(() => authService.requestPasswordCode(email));
   }, [handleRequest]);
@@ -158,7 +159,7 @@ export function AuthProvider({ children }) {
           register,
           logout,
           verifyEmail,
-          resendVerificationEmailCode,
+         // resendVerificationEmailCode,
           requestPasswordCode,
           verifyPasswordCode,
           resetPassword,

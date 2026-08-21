@@ -3,28 +3,30 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../../theme/theme';
+import NetworkImage from '../reusable/NetworkImage';
 
-// Ícone/cor por categoria de estabelecimento. Adicione novas categorias aqui
-// conforme o cadastro de lojas do app for crescendo.
-const CATEGORY_STYLES = {
-  pizza: { icon: 'pizza-outline', color: colors.amber, bg: colors.amberBg },
-  burger: { icon: 'fast-food-outline', color: colors.green, bg: colors.greenBg },
-  sushi: { icon: 'restaurant-outline', color: colors.orangeDark, bg: '#FFE7DB' },
-  default: { icon: 'storefront-outline', color: colors.inkSoft, bg: colors.line },
-};
+function formatPrice(value) {
+  return typeof value === 'number'
+    ? `R$ ${value.toFixed(2).replace('.', ',')}`
+    : value;
+}
 
-export default function DeliveryCard({
-  storeName,
-  distanceKm,
-  price,
-  category = 'default',
-  onPress,
-}) {
-  const categoryStyle = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.default;
-  const formattedPrice =
-    typeof price === 'number'
-      ? `R$ ${price.toFixed(2).replace('.', ',')}`
-      : price;
+function formatDistance(km) {
+  if (typeof km !== 'number') return km;
+  return `${km.toFixed(1).replace('.', ',')} km`;
+}
+
+// Recebe a entrega inteira (como vem de GET /riders/deliveries/available) e
+// extrai o que precisa exibir — evita ficar arrastando prop por prop toda
+// vez que o card precisar de mais um dado da entrega/loja.
+export default function DeliveryCard({ delivery, onPress }) {
+  const { store, distancia, riderPayout } = delivery;
+
+  const metaParts = [
+    store?.address?.district,
+    formatDistance(distancia),
+    formatPrice(riderPayout),
+  ].filter(Boolean);
 
   return (
     <TouchableOpacity
@@ -32,16 +34,20 @@ export default function DeliveryCard({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconWrap, { backgroundColor: categoryStyle.bg }]}>
-        <Ionicons name={categoryStyle.icon} size={18} color={categoryStyle.color} />
-      </View>
+      {store?.avatar ? (
+        <NetworkImage source={store.avatar} width={40} height={40} radius={radius.md} />
+      ) : (
+        <View style={styles.iconWrap}>
+          <Ionicons name="storefront-outline" size={18} color={colors.inkSoft} />
+        </View>
+      )}
 
       <View style={styles.info}>
         <Text style={styles.storeName} numberOfLines={1}>
-          {storeName}
+          {store?.name}
         </Text>
-        <Text style={styles.meta}>
-          {distanceKm} km · {formattedPrice}
+        <Text style={styles.meta} numberOfLines={1}>
+          {metaParts.join(' · ')}
         </Text>
       </View>
 
@@ -62,11 +68,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   iconWrap: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.line,
   },
   info: {
     flex: 1,
