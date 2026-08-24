@@ -21,7 +21,12 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jccintr.delivroorider"
+      "package": "com.jccintr.delivroorider",
+      "config": {
+        "googleMaps": {
+          "apiKey": "COLE_AQUI_A_CHAVE_ANDROID_RIDER"
+        }
+        }
     },
     "web": {
       "favicon": "./src/assets/favicon.png"

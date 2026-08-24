@@ -4,6 +4,7 @@ import Preload from '../screens/Preload';
 import Login from '../screens/Login';
 import Register from '../screens/Register';
 import Home from '../screens/drawer/Home';
+import DeliveryDetails from '../screens/DeliveryDetails';
 import AccountActivation from '../screens/AccountActivation';
 import VerifyPasswordCode from '../screens/VerifyPasswordCode';
 import ResetPassword from '../screens/ResetPassword';
@@ -32,6 +33,7 @@ const StackNavigator = () => {
 
        
         <Stack.Screen name="homeDrawer" component={DrawerNavigator} options={{headerShown:false}}/>
+        <Stack.Screen name="DeliveryDetails" component={DeliveryDetails} options={{headerShown:false}}/>
       
 
     </Stack.Navigator>

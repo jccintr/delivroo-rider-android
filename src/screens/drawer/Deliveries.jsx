@@ -6,8 +6,9 @@ import { colors, fonts, fontSizes, radius, spacing } from '../../theme/theme';
 const Deliveries = () => {
     useStatusBar(colors.white, 'dark-content');
   return (
-    <View>
-      <Text>Deliveries</Text>
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text style={{color: colors.inkSoft, fontSize: fontSizes.lg, fontFamily: fonts.bold,marginBottom: spacing.sm}}>Minhas Entregas</Text>
+      <Text style={{color: colors.inkSoft, fontSize: fontSizes.sm, fontFamily: fonts.bodyRegular}}>Suas entregas aparecerão aqui</Text>
     </View>
   )
 }
