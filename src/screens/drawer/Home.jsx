@@ -359,6 +359,7 @@ const styles = StyleSheet.create({
     color: colors.inkSoft,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
+    textAlign: 'center',
   },
   // A FlatList é o único elemento com flex:1 — é ela quem ocupa o espaço
   // restante da tela e rola; tudo acima dela fica fixo.

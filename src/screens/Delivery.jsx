@@ -300,7 +300,7 @@ export default function Delivery({ route, navigation }) {
               <MapViewDirections
                 origin={{ latitude: origem.latitude, longitude: origem.longitude }}
                 destination={{ latitude: destino.latitude, longitude: destino.longitude }}
-                apikey={process.env.ANDROID_GOOGLE_MAPS_API_KEY}
+                apikey={process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}
                 strokeWidth={4}
                 strokeColor={colors.orange}
                 onReady={(result) => {
