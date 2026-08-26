@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { deliveryService } from '../services/deliveryService';
 import NetworkImage from '../components/reusable/NetworkImage';
 import AlertModal from '../components/modals/AlertModal';
+import ReasonModal from '../components/modals/ReasonModal';
 import useAlertModal from '../hooks/useAlertModal';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -25,8 +27,6 @@ function formatDistance(km) {
   return typeof km === 'number' ? `${km.toFixed(1).replace('.', ',')} km` : '—';
 }
 
-// Ajusta a câmera do mapa para enquadrar origem + destino, com uma margem
-// (padding) para as bordas não ficarem coladas na tela.
 function fitMapToDelivery(mapRef, origem, destino) {
   if (!mapRef.current || !origem || !destino) return;
 
@@ -42,7 +42,16 @@ function fitMapToDelivery(mapRef, origem, destino) {
   );
 }
 
-export default function DeliveryDetails({ route, navigation }) {
+// Configuração de cada etapa do fluxo pós-aceite: rótulo da tela, do
+// passo no stepper, e do botão de ação principal daquele status.
+const STEP_CONFIG = {
+  1: { step: 0, screenTitle: 'Retirar pacote', actionLabel: 'Confirmar retirada' },
+  2: { step: 1, screenTitle: 'A caminho do cliente', actionLabel: 'Estou a caminho' },
+  3: { step: 2, screenTitle: 'Confirmar entrega', actionLabel: 'Confirmar entrega' },
+};
+const STEPS = ['Retirar', 'A caminho', 'Entregue'];
+
+export default function Delivery({ route, navigation }) {
   const { deliveryId } = route.params ?? {};
   const insets = useSafeAreaInsets();
   const alert = useAlertModal();
@@ -52,70 +61,107 @@ export default function DeliveryDetails({ route, navigation }) {
   const [delivery, setDelivery] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [accepting, setAccepting] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // 'cancel' | 'return' | null — controla o ReasonModal
+  const [reasonAction, setReasonAction] = useState(null);
+  const [reasonLoading, setReasonLoading] = useState(false);
+
+  const loadDelivery = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const data = await deliveryService.getById(deliveryId);
+      setDelivery(data);
+    } catch (err) {
+      console.log('Erro ao buscar a entrega:', err);
+      setLoadError(err?.data?.error || err?.message || 'Não foi possível carregar esta entrega.');
+    } finally {
+      setLoading(false);
+    }
+  }, [deliveryId]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadDelivery() {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        const data = await deliveryService.getById(deliveryId);
-        if (isMounted) setDelivery(data);
-      } catch (err) {
-        console.log('Erro ao buscar detalhes da entrega:', err);
-        if (isMounted) {
-          setLoadError(
-            err?.data?.error || err?.message || 'Não foi possível carregar esta entrega.',
-          );
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
     if (deliveryId) {
       loadDelivery();
     } else {
       setLoading(false);
       setLoadError('Entrega inválida.');
     }
+  }, [deliveryId, loadDelivery]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [deliveryId]);
+  function goToHome() {
+    navigation.reset({ index: 0, routes: [{ name: 'homeDrawer' }] });
+  }
 
-  // Confirma o aceite junto à API (status 0 → 1). Em caso de sucesso, vai
-  // direto para a tela de acompanhamento da entrega (Delivery) — não faz
-  // sentido o rider continuar vendo "detalhes de uma entrega disponível"
-  // depois de já tê-la aceitado. Em caso de 409 (outro rider aceitou
-  // primeiro, ou a loja cancelou), mostra o motivo e volta.
-  async function handleAccept() {
-    setAccepting(true);
+  // Avança para a próxima etapa (pickup → en-route → deliver), de acordo
+  // com o status atual da entrega. Ao entregar com sucesso, sai da tela —
+  // a entrega deixa de ser "ativa" e não faz mais sentido continuar aqui.
+  async function handlePrimaryAction() {
+    if (!delivery) return;
+    setActionLoading(true);
+
     try {
-      await deliveryService.accept(deliveryId);
-      alert.show({
-        type: 'success',
-        title: 'Entrega aceita!',
-        message: 'Vá até a loja para retirar o pacote.',
-        onClose: () => {
-          navigation.replace('Delivery', { deliveryId });
-        },
-      });
+      if (delivery.status === 1) {
+        const updated = await deliveryService.pickup(delivery._id);
+        setDelivery(updated);
+      } else if (delivery.status === 2) {
+        const updated = await deliveryService.enRoute(delivery._id);
+        setDelivery(updated);
+      } else if (delivery.status === 3) {
+        await deliveryService.deliver(delivery._id);
+        alert.show({
+          type: 'success',
+          title: 'Entrega concluída!',
+          message: 'Obrigado por mais essa entrega.',
+          onClose: goToHome,
+        });
+        return;
+      }
     } catch (err) {
-      console.log('Erro ao aceitar entrega:', err);
-      setAccepting(false);
+      console.log('Erro ao avançar a entrega:', err);
       alert.show({
         type: 'error',
-        title: 'Não foi possível aceitar',
+        title: 'Não foi possível continuar',
         message: err?.data?.error || err?.message || 'Tente novamente em instantes.',
-        onClose: () => {
-          navigation.goBack();
-        },
       });
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleReasonConfirm(motivo) {
+    setReasonLoading(true);
+    const action = reasonAction;
+
+    try {
+      if (action === 'cancel') {
+        await deliveryService.cancel(delivery._id, motivo);
+      } else {
+        await deliveryService.returnToStore(delivery._id, motivo);
+      }
+
+      setReasonAction(null);
+      alert.show({
+        type: 'success',
+        title: action === 'cancel' ? 'Entrega cancelada' : 'Devolução registrada',
+        message:
+          action === 'cancel'
+            ? 'A entrega voltou para a lista de disponíveis.'
+            : 'A loja foi notificada sobre a devolução do pacote.',
+        onClose: goToHome,
+      });
+    } catch (err) {
+      console.log('Erro ao registrar cancelamento/devolução:', err);
+      setReasonAction(null);
+      alert.show({
+        type: 'error',
+        title: 'Não foi possível continuar',
+        message: err?.data?.error || err?.message || 'Tente novamente em instantes.',
+      });
+    } finally {
+      setReasonLoading(false);
     }
   }
 
@@ -132,16 +178,14 @@ export default function DeliveryDetails({ route, navigation }) {
       <View style={[styles.centered, { paddingTop: insets.top }]}>
         <Ionicons name="alert-circle-outline" size={40} color={colors.inkSoft} />
         <Text style={styles.errorText}>{loadError || 'Entrega não encontrada.'}</Text>
-        <TouchableOpacity style={styles.backLink} onPress={() => navigation.goBack()}>
-          <Text style={styles.backLinkText}>Voltar</Text>
+        <TouchableOpacity style={styles.backLink} onPress={goToHome}>
+          <Text style={styles.backLinkText}>Voltar para a Home</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const { store, origem, destino, package: pkg, distancia, riderPayout } = delivery;
-  // package traz os dados de pagamento (payment/amountDue/cashChange) —
-  // desestruturado abaixo para deixar o JSX mais legível.
+  const { store, origem, destino, package: pkg, distancia, riderPayout, status } = delivery;
   const {
     description,
     category,
@@ -155,17 +199,45 @@ export default function DeliveryDetails({ route, navigation }) {
   const showAmountDue = paymentMethod && paymentMethod !== 'Pago' && paymentMethod !== 'Nada a Pagar' && amountDue > 0;
   const showCashChange = paymentMethod === 'Dinheiro' && cashChange > 0;
 
+  const stepConfig = STEP_CONFIG[status];
+  const canCancel = status === 1;
+  const canReturn = status === 2 || status === 3;
+
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="chevron-back" size={24} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detalhes da entrega</Text>
-        <View style={{ width: 24 }} />
+        <Text style={styles.headerTitle}>{stepConfig?.screenTitle || 'Entrega'}</Text>
+      </View>
+
+      {/* Stepper simples com as 3 etapas do pós-aceite */}
+      <View style={styles.stepper}>
+        {STEPS.map((label, index) => {
+          const isDone = stepConfig && index < stepConfig.step;
+          const isCurrent = stepConfig && index === stepConfig.step;
+          return (
+            <React.Fragment key={label}>
+              <View style={styles.stepItem}>
+                <View
+                  style={[
+                    styles.stepDot,
+                    isDone && styles.stepDotDone,
+                    isCurrent && styles.stepDotCurrent,
+                  ]}
+                >
+                  {isDone ? (
+                    <Ionicons name="checkmark" size={12} color={colors.white} />
+                  ) : (
+                    <Text style={[styles.stepDotText, isCurrent && styles.stepDotTextCurrent]}>
+                      {index + 1}
+                    </Text>
+                  )}
+                </View>
+                <Text style={[styles.stepLabel, isCurrent && styles.stepLabelCurrent]}>{label}</Text>
+              </View>
+              {index < STEPS.length - 1 && <View style={styles.stepLine} />}
+            </React.Fragment>
+          );
+        })}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -225,6 +297,26 @@ export default function DeliveryDetails({ route, navigation }) {
                 description={destino.address}
                 pinColor={colors.green}
               />
+              <MapViewDirections
+                origin={{ latitude: origem.latitude, longitude: origem.longitude }}
+                destination={{ latitude: destino.latitude, longitude: destino.longitude }}
+                apikey={process.env.ANDROID_GOOGLE_MAPS_API_KEY}
+                strokeWidth={4}
+                strokeColor={colors.orange}
+                onReady={(result) => {
+                  // Reenquadra usando os pontos reais da rota (mais preciso
+                  // que só os 2 marcadores, já que a via pode fazer curvas).
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+                    animated: false,
+                  });
+                }}
+                onError={(errorMessage) => {
+                  console.log('Erro ao calcular rota:', errorMessage);
+                  // Se a rota falhar, ao menos garante os 2 pontos visíveis.
+                  fitMapToDelivery(mapRef, origem, destino);
+                }}
+              />
             </MapView>
           </View>
         )}
@@ -243,6 +335,7 @@ export default function DeliveryDetails({ route, navigation }) {
               <Text style={styles.addressLabel}>Entregar em</Text>
               <Text style={styles.addressText}>{destino?.address}</Text>
               {destino?.nome && <Text style={styles.addressMeta}>{destino.nome}</Text>}
+              {destino?.telefone && <Text style={styles.addressMeta}>{destino.telefone}</Text>}
             </View>
           </View>
         </View>
@@ -287,22 +380,48 @@ export default function DeliveryDetails({ route, navigation }) {
             )}
           </View>
         )}
+
+        {(canCancel || canReturn) && (
+          <TouchableOpacity
+            style={styles.destructiveLink}
+            onPress={() => setReasonAction(canCancel ? 'cancel' : 'return')}
+            disabled={actionLoading}
+          >
+            <Text style={styles.destructiveLinkText}>
+              {canCancel ? 'Cancelar entrega' : 'Devolver pacote à loja'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         <TouchableOpacity
-          style={[styles.acceptButton, accepting && styles.acceptButtonDisabled]}
-          onPress={handleAccept}
-          disabled={accepting}
+          style={[styles.actionButton, actionLoading && styles.actionButtonDisabled]}
+          onPress={handlePrimaryAction}
+          disabled={actionLoading}
           activeOpacity={0.85}
         >
-          {accepting ? (
+          {actionLoading ? (
             <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.acceptButtonText}>ACEITAR ENTREGA</Text>
+            <Text style={styles.actionButtonText}>{stepConfig?.actionLabel || 'Continuar'}</Text>
           )}
         </TouchableOpacity>
       </View>
+
+      <ReasonModal
+        visible={reasonAction != null}
+        title={reasonAction === 'cancel' ? 'Cancelar entrega' : 'Devolver à loja'}
+        message={
+          reasonAction === 'cancel'
+            ? 'Conte pra gente o motivo do cancelamento. A entrega volta para a lista de disponíveis.'
+            : 'Conte pra gente o motivo da devolução (cliente não encontrado, recusou o pacote, etc).'
+        }
+        confirmText={reasonAction === 'cancel' ? 'Cancelar entrega' : 'Confirmar devolução'}
+        loading={reasonLoading}
+        onCancel={() => setReasonAction(null)}
+        onConfirm={handleReasonConfirm}
+      />
 
       <AlertModal {...alert.props} />
     </View>
@@ -337,9 +456,6 @@ const styles = StyleSheet.create({
     color: colors.orangeDark,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.md,
     backgroundColor: colors.white,
@@ -350,6 +466,57 @@ const styles = StyleSheet.create({
     fontFamily: fonts.headingBold,
     fontSize: fontSizes.lg,
     color: colors.ink,
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  stepItem: {
+    alignItems: 'center',
+  },
+  stepDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepDotDone: {
+    backgroundColor: colors.green,
+  },
+  stepDotCurrent: {
+    backgroundColor: colors.orange,
+  },
+  stepDotText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
+  },
+  stepDotTextCurrent: {
+    color: colors.white,
+  },
+  stepLabel: {
+    fontFamily: fonts.bodyRegular,
+    fontSize: fontSizes.xs,
+    color: colors.inkSoft,
+    marginTop: 4,
+  },
+  stepLabelCurrent: {
+    fontFamily: fonts.bodySemiBold,
+    color: colors.ink,
+  },
+  stepLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: colors.line,
+    marginHorizontal: spacing.xs,
+    marginBottom: 18,
   },
   content: {
     padding: spacing.xl,
@@ -509,6 +676,15 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.base,
     color: colors.ink,
   },
+  destructiveLink: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  destructiveLinkText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.red,
+  },
   footer: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
@@ -516,17 +692,17 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.line,
   },
-  acceptButton: {
+  actionButton: {
     height: 54,
     borderRadius: radius.lg,
     backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  acceptButtonDisabled: {
+  actionButtonDisabled: {
     opacity: 0.7,
   },
-  acceptButtonText: {
+  actionButtonText: {
     fontFamily: fonts.headingBold,
     fontSize: fontSizes.lg,
     color: colors.white,

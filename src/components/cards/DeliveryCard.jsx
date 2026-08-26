@@ -16,11 +16,20 @@ function formatDistance(km) {
   return `${km.toFixed(1).replace('.', ',')} km`;
 }
 
-// Recebe a entrega inteira (como vem de GET /riders/deliveries/available) e
-// extrai o que precisa exibir — evita ficar arrastando prop por prop toda
-// vez que o card precisar de mais um dado da entrega/loja.
+// Rótulo (texto + cor) exibido como uma pill, por status — usado quando o
+// card representa uma entrega já aceita (em andamento), não uma disponível.
+const STATUS_LABELS = {
+  1: { text: 'Retirar pacote', color: colors.orange },
+  2: { text: 'Retirado', color: colors.orange },
+  3: { text: 'A caminho', color: colors.green },
+};
+
+// Recebe a entrega inteira (como vem de GET /riders/deliveries/available ou
+// /active) e extrai o que precisa exibir — evita ficar arrastando prop por
+// prop toda vez que o card precisar de mais um dado da entrega/loja.
 export default function DeliveryCard({ delivery, onPress }) {
-  const { store, distancia, riderPayout } = delivery;
+  const { store, distancia, riderPayout, status } = delivery;
+  const statusLabel = STATUS_LABELS[status];
 
   const metaParts = [
     store?.address?.district,
@@ -43,9 +52,18 @@ export default function DeliveryCard({ delivery, onPress }) {
       )}
 
       <View style={styles.info}>
-        <Text style={styles.storeName} numberOfLines={1}>
-          {store?.name}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.storeName} numberOfLines={1}>
+            {store?.name}
+          </Text>
+          {statusLabel && (
+            <View style={[styles.statusPill, { backgroundColor: `${statusLabel.color}1A` }]}>
+              <Text style={[styles.statusPillText, { color: statusLabel.color }]}>
+                {statusLabel.text}
+              </Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.meta} numberOfLines={1}>
           {metaParts.join(' · ')}
         </Text>
@@ -78,10 +96,25 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
   storeName: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.base,
     color: colors.ink,
+    flexShrink: 1,
+  },
+  statusPill: {
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  statusPillText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 10,
   },
   meta: {
     fontFamily: fonts.bodyRegular,

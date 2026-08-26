@@ -10,7 +10,8 @@ import AlertModal from '../../components/modals/AlertModal';
 import useAlertModal from '../../hooks/useAlertModal';
 import { deliveryService } from '../../services/deliveryService';
 
-// Intervalo de atualização automática da lista de entregas disponíveis.
+// Intervalo de atualização automática das listas de entregas (disponíveis
+// e em andamento).
 // TODO: quando o push notification de "nova entrega" existir, este polling
 // pode virar só um fallback (aumentar o intervalo ou remover), já que o
 // push vai avisar o rider em tempo real.
@@ -22,9 +23,13 @@ const Home = ({navigation}) => {
   const [deliveries, setDeliveries] = useState([]);
   const [loadingDeliveries, setLoadingDeliveries] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeDeliveries, setActiveDeliveries] = useState([]);
+  const [loadingActive, setLoadingActive] = useState(true);
   const insets = useSafeAreaInsets();
   const alert = useAlertModal();
   useStatusBar(colors.orange, 'light-content');
+
+  const hasActiveDelivery = activeDeliveries.length > 0;
 
   // Evita setState depois do componente desmontar (ex: usuário navega para
   // outra tela durante um fetch em andamento no meio do polling).
@@ -54,10 +59,39 @@ const Home = ({navigation}) => {
     }
   }, []);
 
-  // Só busca/atualiza a lista enquanto o rider está online — offline não
-  // tem sentido mostrar (nem consultar) entregas disponíveis.
+  const fetchActive = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoadingActive(true);
+
+    try {
+      const data = await deliveryService.listActive();
+      if (isMountedRef.current) {
+        setActiveDeliveries(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.log('Erro ao buscar entregas em andamento:', err);
+    } finally {
+      if (isMountedRef.current) setLoadingActive(false);
+    }
+  }, []);
+
+  // A entrega em andamento é do próprio rider (ele já se comprometeu com
+  // ela), então busca sempre — independente de estar online/offline no
+  // momento. Já as disponíveis só fazem sentido buscar quando o rider está
+  // online E não tem nada em andamento (ver efeito abaixo).
   useEffect(() => {
-    if (!isOnline) {
+    fetchActive();
+    const intervalId = setInterval(() => {
+      fetchActive({ silent: true });
+    }, POLLING_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [fetchActive]);
+
+  // Só busca/atualiza a lista de disponíveis quando o rider está online e
+  // não tem nenhuma entrega em andamento — enquanto ele está ocupado com
+  // uma entrega, não faz sentido mostrar (nem consultar) novas opções.
+  useEffect(() => {
+    if (!isOnline || hasActiveDelivery) {
       setDeliveries([]);
       return;
     }
@@ -69,11 +103,12 @@ const Home = ({navigation}) => {
     }, POLLING_INTERVAL_MS);
 
     return () => clearInterval(intervalId);
-  }, [isOnline, fetchDeliveries]);
+  }, [isOnline, hasActiveDelivery, fetchDeliveries]);
 
   function handleRefresh() {
     setRefreshing(true);
     fetchDeliveries({ silent: true });
+    fetchActive({ silent: true });
   }
 
     useEffect(() => {
@@ -104,6 +139,10 @@ const Home = ({navigation}) => {
  
   function handleOpenDelivery(deliveryId) {
     navigation.navigate('DeliveryDetails', { deliveryId });
+  }
+
+  function handleOpenActiveDelivery(deliveryId) {
+    navigation.navigate('Delivery', { deliveryId });
   }
 
 
@@ -171,28 +210,51 @@ const handleToggleOnline = async () => {
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Novas entregas para você</Text>
+      {loadingActive && activeDeliveries.length === 0 ? null : hasActiveDelivery ? (
+        <View style={styles.activeSection}>
+          <Text style={styles.sectionTitle}>Sua entrega em andamento</Text>
+          <View style={{ gap: spacing.sm, paddingHorizontal: spacing.xl }}>
+            {activeDeliveries.map((item) => (
+              <DeliveryCard
+                key={item._id}
+                delivery={item}
+                onPress={() => handleOpenActiveDelivery(item._id)}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
 
-      {!isOnline && (
+      {hasActiveDelivery ? (
         <Text style={styles.emptyHint}>
-          Fique online para ver as entregas disponíveis na sua região.
+          Finalize a entrega atual para ver novas oportunidades disponíveis.
         </Text>
-      )}
+      ) : (
+        <>
+          <Text style={styles.sectionTitle}>Novas entregas para você</Text>
 
-      {isOnline && loadingDeliveries && deliveries.length === 0 && (
-        <ActivityIndicator color={colors.orange} style={{ marginTop: spacing.md }} />
-      )}
+          {!isOnline && (
+            <Text style={styles.emptyHint}>
+              Fique online para ver as entregas disponíveis na sua região.
+            </Text>
+          )}
 
-      {isOnline && !loadingDeliveries && deliveries.length === 0 && (
-        <Text style={styles.emptyHint}>
-          Nenhuma entrega disponível no momento. A lista atualiza automaticamente.
-        </Text>
+          {isOnline && loadingDeliveries && deliveries.length === 0 && (
+            <ActivityIndicator color={colors.orange} style={{ marginTop: spacing.md }} />
+          )}
+
+          {isOnline && !loadingDeliveries && deliveries.length === 0 && (
+            <Text style={styles.emptyHint}>
+              Nenhuma entrega disponível no momento. A lista atualiza automaticamente.
+            </Text>
+          )}
+        </>
       )}
 
       <FlatList
         style={styles.list}
         contentContainerStyle={styles.listContent}
-        data={isOnline ? deliveries : []}
+        data={isOnline && !hasActiveDelivery ? deliveries : []}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <DeliveryCard
@@ -202,7 +264,7 @@ const handleToggleOnline = async () => {
         )}
         ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
         refreshing={refreshing}
-        onRefresh={isOnline ? handleRefresh : undefined}
+        onRefresh={isOnline && !hasActiveDelivery ? handleRefresh : undefined}
       />
 
       <AlertModal {...alert.props} />
@@ -279,6 +341,9 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.inkSoft,
     marginTop: 2,
+  },
+  activeSection: {
+    marginTop: spacing.xl,
   },
   sectionTitle: {
     fontFamily: fonts.headingBold,
