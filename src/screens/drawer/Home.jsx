@@ -1,9 +1,10 @@
 import { useAuth } from '../../contexts/AuthContext'
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
 import DeliveryCard from '../../components/cards/DeliveryCard';
+import GoOnlineButton from '../../components/reusable/GoOnlineButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {useStatusBar} from '../../hooks/useStatusBar';
 import AlertModal from '../../components/modals/AlertModal';
@@ -179,18 +180,10 @@ const handleToggleOnline = async () => {
             <Text style={styles.greeting}>Olá,</Text>
             <Text style={styles.name}>{user?.name}</Text>
           </View>
-        </View>
-
-        <View style={styles.statusToggle}>
-          <Text style={styles.statusText}>
-            {isOnline ? 'Você está online' : 'Você está offline'}
-          </Text>
-          <Switch
+          <GoOnlineButton
             value={isOnline}
             onValueChange={handleToggleOnline}
-            disabled={requestLoading}
-            trackColor={{ false: 'rgba(255,255,255,0.3)', true: 'rgba(255,255,255,0.3)' }}
-            thumbColor={isOnline ? colors.green : colors.white}
+            loading={requestLoading}
           />
         </View>
       </View>
@@ -299,21 +292,6 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fonts.headingBold,
     fontSize: fontSizes.lg,
-    color: colors.white,
-  },
-  statusToggle: {
-    marginTop: spacing.lg,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    borderRadius: radius.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  statusText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: fontSizes.base,
     color: colors.white,
   },
   stats: {
