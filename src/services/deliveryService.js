@@ -38,4 +38,23 @@ export const deliveryService = {
   // retirada. status 1 → volta para 0 (reabre no pool). Exige motivo.
   cancel: (id, motivo) =>
     api(`/riders/deliveries/${id}/cancel`, { method: 'POST', body: JSON.stringify({ motivo }) }),
+
+    // GET /riders/deliveries/history — histórico de entregas finalizadas do
+  // rider (entregue, devolvida, ou cancelada pela loja depois que ele já
+  // tinha aceitado), para a tela "Minhas Entregas". Sempre paginado — quem
+  // chama acumula as páginas (ver Deliveries.jsx). Aceita filtros opcionais
+  // por status ('delivered' | 'returned' | 'cancelled') e por período
+  // (from/to, formato AAAA-MM-DD, ancorado no dia civil de Brasília pela
+  // API); sem esses filtros, traz tudo. Retorna
+  // { data, page, limit, total, totalPages }.
+  listHistory: ({ status, from, to, page = 1, limit = 20 } = {}) => {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    return api(`/riders/deliveries/history?${params.toString()}`, { method: 'GET' });
+  },
 };
+

@@ -34,7 +34,7 @@ export default function Profile() {
   const [document, setDocument] = useState('000.000.000-00');
   const [savingProfile, setSavingProfile] = useState(false);
   const keyboardBehavior = useKeyboardBehavior();
-   const headerHeight = useHeaderHeight();
+  const headerHeight = useHeaderHeight();
   useStatusBar(colors.white, 'dark-content');
 
   useEffect(() => {
