@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "715474193910",
+    "project_id": "delivroo-express-app",
+    "storage_bucket": "delivroo-express-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:715474193910:android:c0156101d12b8fa8b38bd7",
+        "android_client_info": {
+          "package_name": "com.jccintr.delivroorider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZpNNOPBqc-6heTaRMth_u1-biBS71LQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -41,4 +41,11 @@ yarn-error.*
 /ios
 /android
 
+# Firebase — chave de conta de serviço (usada pela EAS pra enviar push via
+# FCM v1). Nunca comitar isso — sobe direto pra EAS via `eas credentials`.
+# google-services.json (o outro arquivo do Firebase) é seguro comitar e
+# fica de fora dessa regra de propósito — só tem IDs públicos do projeto.
+*firebase-adminsdk*.json
+*service-account*.json
+
 

@@ -38,6 +38,7 @@ module.exports = {
       },
       edgeToEdgeEnabled: true,
       package: 'com.jccintr.delivroorider',
+      googleServicesFile: './google-services.json',
       config: {
         googleMaps: {
           apiKey: process.env.ANDROID_GOOGLE_MAPS_API_KEY,
@@ -47,7 +48,7 @@ module.exports = {
     web: {
       favicon: './src/assets/favicon.png',
     },
-    plugins: ['expo-font'],
+    plugins: ['expo-font',['expo-notifications',{color: '#FF6B35',}]],
     extra: {
       eas: {
         projectId: '9129f113-aa30-4415-8840-5f9b183f6c45',

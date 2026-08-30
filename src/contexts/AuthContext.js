@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/authService';
+import { registerForPushNotificationsAsync } from '../utils/pushNotifications';
 
 const AuthContext = createContext({});
 
@@ -37,6 +38,27 @@ export function AuthProvider({ children }) {
 
     loadStorageData();
   }, []);
+
+  // Registra o push token sempre que o rider "se torna autenticado" — tanto
+  // logo após o login quanto ao reabrir o app com uma sessão já válida
+  // (loadStorageData acima). Usa user?._id como dependência (não `user`
+  // inteiro) de propósito: updateProfile/uploadAvatar/toggleOnline/
+  // updateVehicle recriam o objeto `user` a cada chamada, e isso não deve
+  // disparar um novo registro toda vez — só quando a identidade do rider
+  // logado muda de verdade (login/logout). Melhor esforço: falha aqui
+  // nunca deve impedir o rider de usar o app, só fica sem notificação até
+  // a próxima vez que o app abrir.
+  useEffect(() => {
+    if (!user?._id) return;
+
+    registerForPushNotificationsAsync()
+      .then((pushToken) => {
+        if (pushToken) return authService.updatePushToken(pushToken);
+      })
+      .catch((err) => {
+        console.log('Erro ao registrar push token:', err);
+      });
+  }, [user?._id]);
 
   const handleRequest = useCallback(async (requestFn) => {
     try {

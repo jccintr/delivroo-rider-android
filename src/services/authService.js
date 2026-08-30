@@ -100,5 +100,15 @@ uploadDocument: (uri) => {
     });
   },
 
-
+  // PATCH /riders/me/push-token — salva/atualiza o Expo push token do
+  // rider autenticado. Chamado pelo AuthContext sempre que o app consegue
+  // obter um token novo (ver utils/pushNotifications.js).
+  updatePushToken: (pushToken) => {
+    return api('/riders/me/push-token', {
+      method: 'PATCH',
+      body: JSON.stringify({ pushToken }),
+    });
+  },
 };
+
+
