@@ -164,6 +164,16 @@ export function AuthProvider({ children }) {
 
 
   const logout = useCallback(async () => {
+    // Best-effort: tenta avisar o backend que o rider ficou offline, pra
+    // parar de receber notificação de nova entrega enquanto deslogado.
+    // Precisa rodar antes de remover o token (chamada autenticada) e nunca
+    // deve travar o logout — sem internet, o rider ainda assim consegue sair.
+    try {
+      await authService.setOffline();
+    } catch (err) {
+      console.log('Erro ao marcar rider como offline no logout:', err);
+    }
+
     await AsyncStorage.removeItem('@token');
     setUser(null);
     setDocumentPromptShown(false);

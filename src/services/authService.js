@@ -79,6 +79,12 @@ export const authService = {
 toggleOnline: () =>
   api('/riders/me/status', { method: 'PATCH' }),
 
+// PATCH /riders/me/status/offline — força online:false, ao contrário do
+// toggleOnline (que alterna). Chamado no logout: não importa o estado
+// atual, o resultado é sempre offline.
+setOffline: () =>
+  api('/riders/me/status/offline', { method: 'PATCH' }),
+
 uploadDocument: (uri) => {
     const formData = new FormData();
     formData.append('document', {
@@ -110,5 +116,3 @@ uploadDocument: (uri) => {
     });
   },
 };
-
-
