@@ -83,8 +83,8 @@ export function AuthProvider({ children }) {
     });
   }, [handleRequest]);
 
-  const register = useCallback(async (name, email, phone, password, vehicleType) => {
-    return handleRequest(() => authService.register(name, email, phone, password, vehicleType));
+  const register = useCallback(async (name, email, phone, password, vehicleType, cityId) => {
+    return handleRequest(() => authService.register(name, email, phone, password, vehicleType, cityId));
   }, [handleRequest]);
 
   

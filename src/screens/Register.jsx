@@ -14,6 +14,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, radius, spacing } from '../theme/theme';
 import { useAuth } from '../contexts/AuthContext'
 import AlertModal from '../components/modals/AlertModal';
+import CitySelectModal from '../components/modals/CitySelectModal';
 import useAlertModal from '../hooks/useAlertModal';
 import logo from '../assets/rider-orange.png';
 import AssetImage from '../components/reusable/AssetImage';
@@ -35,6 +36,8 @@ const Register = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [vehicleType, setVehicleType] = useState(null);
+  const [city, setCity] = useState(null);
+  const [showCityModal, setShowCityModal] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { register } = useAuth();
   const alert = useAlertModal();
@@ -51,11 +54,15 @@ const Register = ({navigation}) => {
       alert.show({type: 'error',title: 'Vehículo', message: 'Selecione o tipo de seu veículo para continuar.',});
       return;
     }
+    if (!city) {
+      alert.show({type: 'error',title: 'Cidade', message: 'Selecione sua cidade para continuar.',});
+      return;
+    }
     setIsLoading(true);
     console.log('Register Request');
-    console.log('Cadastro:', { name, email, phone, password, vehicleType });
+    console.log('Cadastro:', { name, email, phone, password, vehicleType, cityId: city._id });
     try {
-       const response = await register(name, email, phone, password, vehicleType);
+       const response = await register(name, email, phone, password, vehicleType, city._id);
        alert.show({
           type: 'success',
           title: 'Cadastro efetuado',
@@ -128,6 +135,15 @@ const Register = ({navigation}) => {
               autoComplete="tel"
             />
           </View>
+
+          {/* Cidade */}
+          <TouchableOpacity style={styles.field} onPress={() => setShowCityModal(true)}>
+            <Ionicons name="location-outline" size={18} color={colors.inkSoft} />
+            <Text style={[styles.input, !city && styles.placeholderText]}>
+              {city ? `${city.name} - ${city.state}` : 'Selecione sua cidade'}
+            </Text>
+            <Ionicons name="chevron-down" size={18} color={colors.inkSoft} />
+          </TouchableOpacity>
  
           {/* Senha */}
           <View style={styles.field}>
@@ -196,6 +212,15 @@ const Register = ({navigation}) => {
         </View>
       </ScrollView>
       <AlertModal {...alert.props} />
+      <CitySelectModal
+        visible={showCityModal}
+        selectedCityId={city?._id}
+        onSelect={(selected) => {
+          setCity(selected);
+          setShowCityModal(false);
+        }}
+        onClose={() => setShowCityModal(false)}
+      />
     </KeyboardAvoidingView>
   );
 
@@ -257,6 +282,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodyRegular,
     fontSize: fontSizes.base,
     color: colors.ink,
+  },
+  placeholderText: {
+    color: colors.inkSoft,
   },
   label: {
     fontFamily: fonts.bodySemiBold,
