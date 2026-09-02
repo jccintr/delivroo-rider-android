@@ -8,12 +8,12 @@ export const authService = {
     });
   },
 
-  register: (name, email, phone, password, vehicleType) => {
-    return api('/riders/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, phone, password, vehicleType }),
-    });
-  },
+  register: (name, email, phone, password, vehicleType, cityId) => {
+  return api('/riders/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, phone, password, vehicleType, cityId }),
+  });
+},
 
   validateToken: () => {
     return api('/riders/me', {
