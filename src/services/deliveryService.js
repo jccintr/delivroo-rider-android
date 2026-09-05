@@ -56,10 +56,11 @@ export const deliveryService = {
     params.set('limit', String(limit));
     return api(`/riders/deliveries/history?${params.toString()}`, { method: 'GET' });
   },
-  // GET /riders/deliveries/stats/today — resumo do dia para o mini-
-  // dashboard da Home: valor faturado (soma de riderPayout) e quantidade
-  // de entregas concluídas HOJE (dia civil de Brasília — zera à meia-noite
-  // de Brasília, não a de UTC). Retorna { earnings, deliveries }.
-  statsToday: () => api('/riders/deliveries/stats/today', { method: 'GET' }),
+  // GET /riders/deliveries/stats/summary — resumo para o mini-dashboard da
+  // Home e para a tela "Meus Ganhos": valor faturado e quantidade de
+  // entregas concluídas em Dia, Semana (começa segunda) e Mês atuais,
+  // ancorados no calendário civil de Brasília. Retorna
+  // { today: {earnings, deliveries}, week: {...}, month: {...} }.
+  earningsSummary: () => api('/riders/deliveries/stats/summary', { method: 'GET' }),
 
 };

@@ -82,9 +82,9 @@ const Home = ({navigation}) => {
     if (!silent) setLoadingStats(true);
 
     try {
-      const data = await deliveryService.statsToday();
+      const data = await deliveryService.earningsSummary();
       if (isMountedRef.current) {
-        setStats({ earnings: data?.earnings ?? 0, deliveries: data?.deliveries ?? 0 });
+        setStats({ earnings: data?.today?.earnings ?? 0, deliveries: data?.today?.deliveries ?? 0 });
       }
     } catch (err) {
       console.log('Erro ao buscar estatísticas do dia:', err);
