@@ -2,6 +2,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import {colors, fonts, fontSizes, radius, spacing} from '../../theme/theme';
 import DeliveryCard from '../../components/cards/DeliveryCard';
 import GoOnlineButton from '../../components/reusable/GoOnlineButton';
@@ -26,6 +27,8 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeDeliveries, setActiveDeliveries] = useState([]);
   const [loadingActive, setLoadingActive] = useState(true);
+  const [stats, setStats] = useState({ earnings: 0, deliveries: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
   const insets = useSafeAreaInsets();
   const alert = useAlertModal();
   useStatusBar(colors.orange, 'light-content');
@@ -75,6 +78,21 @@ const Home = ({navigation}) => {
     }
   }, []);
 
+  const fetchStats = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setLoadingStats(true);
+
+    try {
+      const data = await deliveryService.statsToday();
+      if (isMountedRef.current) {
+        setStats({ earnings: data?.earnings ?? 0, deliveries: data?.deliveries ?? 0 });
+      }
+    } catch (err) {
+      console.log('Erro ao buscar estatísticas do dia:', err);
+    } finally {
+      if (isMountedRef.current) setLoadingStats(false);
+    }
+  }, []);
+
   // A entrega em andamento é do próprio rider (ele já se comprometeu com
   // ela), então busca sempre — independente de estar online/offline no
   // momento. Já as disponíveis só fazem sentido buscar quando o rider está
@@ -87,6 +105,25 @@ const Home = ({navigation}) => {
 
     return () => clearInterval(intervalId);
   }, [fetchActive]);
+
+  // Estatísticas do dia (faturado + quantidade de hoje): busca ao montar,
+  // atualiza no mesmo intervalo de polling das demais listas, e também
+  // sempre que a tela ganha foco de novo — é assim que o valor reflete uma
+  // entrega concluída na tela Delivery assim que o rider volta pra Home.
+  useEffect(() => {
+    fetchStats();
+    const intervalId = setInterval(() => {
+      fetchStats({ silent: true });
+    }, POLLING_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [fetchStats]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStats({ silent: true });
+    }, [fetchStats])
+  );
 
   // Só busca/atualiza a lista de disponíveis quando o rider está online e
   // não tem nenhuma entrega em andamento — enquanto ele está ocupado com
@@ -110,6 +147,7 @@ const Home = ({navigation}) => {
     setRefreshing(true);
     fetchDeliveries({ silent: true });
     fetchActive({ silent: true });
+    fetchStats({ silent: true });
   }
 
     useEffect(() => {
@@ -132,12 +170,6 @@ const Home = ({navigation}) => {
   }, [user,documentPromptShown,markDocumentPromptShown,alert,navigation]);
 
   
-  const stats = {
-    earningsToday: 84,
-    deliveriesToday: 6,
-    rating: 4.9,
-  };
- 
   function handleOpenDelivery(deliveryId) {
     navigation.navigate('DeliveryDetails', { deliveryId });
   }
@@ -190,16 +222,20 @@ const handleToggleOnline = async () => {
 
       <View style={styles.stats}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>R$ {stats.earningsToday}</Text>
-          <Text style={styles.statLabel}>Hoje</Text>
+          {loadingStats ? (
+            <ActivityIndicator color={colors.orangeDark} size="small" />
+          ) : (
+            <Text style={styles.statValue}>R$ {stats.earnings.toFixed(2).replace('.', ',')}</Text>
+          )}
+          <Text style={styles.statLabel}>Faturado hoje</Text>
         </View>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{stats.deliveriesToday}</Text>
-          <Text style={styles.statLabel}>Entregas</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>{stats.rating}</Text>
-          <Text style={styles.statLabel}>Avaliação</Text>
+          {loadingStats ? (
+            <ActivityIndicator color={colors.orangeDark} size="small" />
+          ) : (
+            <Text style={styles.statValue}>{stats.deliveries}</Text>
+          )}
+          <Text style={styles.statLabel}>Entregas hoje</Text>
         </View>
       </View>
 
@@ -338,6 +374,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     textAlign: 'center',
+  },
+  activeSection: {
+    marginTop: spacing.xl,
   },
   // A FlatList é o único elemento com flex:1 — é ela quem ocupa o espaço
   // restante da tela e rola; tudo acima dela fica fixo.

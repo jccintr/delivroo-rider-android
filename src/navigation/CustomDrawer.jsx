@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View,Linking } from 'react-native'
 import {useContext} from 'react'
 import { DrawerContentScrollView,DrawerItem } from '@react-navigation/drawer'
-import { MaterialIcons, FontAwesome, FontAwesome6,MaterialCommunityIcons,Feather } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome,Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetworkImage from '../components/reusable/NetworkImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -73,6 +73,13 @@ const CustomDrawer = ({ navigation }) => {
                 label="Minhas Entregas"
                 labelStyle={{color:colors.inkSoft}}
                 onPress={() => navigation.navigate('deliveries')}
+                allowFontScaling={false}
+            />
+            <DrawerItem
+                icon={()=><MaterialIcons name="attach-money" size={24} color={colors.inkSoft} />}
+                label="Meus Ganhos"
+                labelStyle={{color:colors.inkSoft}}
+                onPress={() => navigation.navigate('myEarnings')}
                 allowFontScaling={false}
             />
              <DrawerItem
